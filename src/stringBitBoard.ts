@@ -228,7 +228,6 @@ class BitBoard {
 }
 
 /**
- * @function padString: function
  * @param str: string
  * @param length: number
  * @param padValue: string

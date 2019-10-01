@@ -1,3 +1,4 @@
+
 "use strict";
 /**
  * @author cj dagostino
@@ -192,7 +193,6 @@ var BitBoard = /** @class */ (function () {
     return BitBoard;
 }());
 /**
- * @function padString: function
  * @param str: string
  * @param length: number
  * @param padValue: string

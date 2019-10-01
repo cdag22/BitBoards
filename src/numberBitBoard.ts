@@ -172,10 +172,14 @@ class BitBoard {
     let strBoard: string = this.boardToString();
     let newStr: string;
     let notBoard: Array<number> = [];
-    for (let i: number = 0; i < this.length; i++) {
+    let i: number = 0
+
+    while (i < this.length) {
       newStr = '';
-      for (let k: number = 0; k < this.bitsPerByte; k++ , i++) {
+      
+      while(i % this.bitsPerByte !== 0) {
         newStr += strBoard[i] === '1' ? '0' : '1';
+        i++;
       }
       notBoard.push(parseInt(newStr, 2))
     }
