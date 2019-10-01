@@ -1,5 +1,5 @@
+* @author cj dagostino
 /**
- * @author cj dagostino
  * 
  * @class BitBoard
  * @param bitRows: [optional] Array<number>
@@ -176,7 +176,7 @@ class BitBoard {
 
     while (i < this.length) {
       newStr = '';
-      
+
       while(i % this.bitsPerByte !== 0) {
         newStr += strBoard[i] === '1' ? '0' : '1';
         i++;
