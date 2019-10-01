@@ -1,0 +1,5 @@
+# Mac OS
+.DS_Store
+
+# Libs
+node_modules

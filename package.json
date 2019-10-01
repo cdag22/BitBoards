@@ -1,0 +1,23 @@
+{
+  "name": "bitboards",
+  "version": "1.0.0",
+  "description": "bitboards for game calculations",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "test:dev": "jest --watchAll"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cdag22/BitBoards.git"
+  },
+  "author": "cj dagostino",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cdag22/BitBoards/issues"
+  },
+  "homepage": "https://github.com/cdag22/BitBoards#readme",
+  "devDependencies": {
+    "jest": "^24.9.0"
+  }
+}
