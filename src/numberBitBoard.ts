@@ -12,41 +12,42 @@ class BitBoard {
 
   public board: Array<number>;
   public length: number;
-  private bitsPerByte: number;
+  private readonly bitsPerByte: number;
+  private readonly BITS_PER_BUCKET: number;
+  private readonly MAX_BITS: number;
 
   /**
    * @param bitRows: Array<number>
    */
-  constructor(bitRows: number[] = [0, 0, 0, 0, 0, 0, 0, 0]) {
+  constructor(bitRows: number[] = [0, 0]) {
     if (!Array.isArray(bitRows) || bitRows.some(x => typeof x !== 'number')) {
       throw new TypeError('Invalid Input. Must be "Array" of "numbers"')
     }
 
-    for (let i: number = 0, length: number = bitRows.length; i < length; i++) {
-      if (Math.floor(bitRows[i]) !== bitRows[i] || bitRows[i] < 0 || bitRows[i] > 255) {
-        throw new RangeError('inputs to bitRows array must be integers greater than or equal to zero and less than 256')
-      }
-    }
-    
+    this.MAX_BITS = 4294967296;
     this.board = bitRows;
-    this.length = this.board.length * 8;
-    this.bitsPerByte = 8;
+    this.length = 64;
+    this.BITS_PER_BUCKET = 32;
+
+  if (bitRows.length !== 2 && !bitRows.every(x => Math.floor(x) === x && x >= 0 && x < this.MAX_BITS)) {
+      throw new RangeError('inputs to bitRows array must be two integers x where  0 <= x < 2 ^ 32 (or 4294967296)');
+    }
   }
 
   /**
    * @param bit: Object
    * @returns boolean
    */
-  determineIfBitBoard(bit: BitBoard): boolean {
-    const names = Object.getOwnPropertyNames(bit);
-    if (typeof bit === 'object' && names.indexOf('board') !== -1 && names.indexOf('length') !== -1 && names.indexOf('bitsPerByte') !== -1) {
-      const isLengthByteMultiple: boolean = bit.length % 8 === 0;
-      const isBoardArray: boolean = Array.isArray(bit.board);
-      const isBoardValidNumber: boolean = bit.board.every(b => typeof b === 'number' && b >= 0 && b <= 255 && Math.floor(b) === b);
-      const isBoardLengthCorrect: boolean = bit.board.length * 8 === bit.length;
-      const doPrototypesMatch: boolean = Object.getPrototypeOf(bit) === BitBoard.prototype;
+  determineIfBitBoard(bitBoard: BitBoard): boolean {
+    const names = Object.getOwnPropertyNames(bitBoard);
+    if (typeof bitBoard === 'object') {
+      const arePropertyNamesCorrect = names.every(name => ['board', 'length', 'BITS_PER_BUCKET', 'MAX_BITS'].indexOf(name) !== -1);
+      const isBoardCorrectArray: boolean = Array.isArray(bitBoard.board) && bitBoard.board.length === 2;
+      const isBoardValidNumber: boolean = bitBoard.board.every(b => typeof b === 'number' && b >= 0 && b < this.MAX_BITS && Math.floor(b) === b);
+      const isBoardLengthCorrect: boolean = bitBoard.length === this.length;
+      const doPrototypesMatch: boolean = Object.getPrototypeOf(bitBoard) === BitBoard.prototype;
 
-      return isLengthByteMultiple && isBoardArray && isBoardValidNumber && isBoardLengthCorrect && doPrototypesMatch;
+      return arePropertyNamesCorrect && isBoardCorrectArray && isBoardValidNumber && isBoardLengthCorrect && doPrototypesMatch;
     }
     return false;
   }
@@ -56,22 +57,26 @@ class BitBoard {
    */
   boardToString() {
     let str = '';
+
     for (let i = 0; i < this.board.length; i++) {
-      str += padString(this.board[i].toString(2), this.bitsPerByte, '0', true);
+
+      str += padString(this.board[i].toString(2), this.BITS_PER_BUCKET, '0', true);
     }
     return str;
   }
 
   /**
    * 
-   * @param index: number
-   * @returns number
+   * @param index : number
+   * @returns 1 or 0
    */
   getIndex(index: number): number {
     if (Math.floor(index) === index && index > -1 && index < this.length) {
-      const powOfTwo = 2 ** (index % this.bitsPerByte);
-      const numberOfBuckets = this.length / this.bitsPerByte;
-      return (this.board[numberOfBuckets - 1 - Math.floor(index / this.bitsPerByte)] & (powOfTwo)) / powOfTwo;
+
+      const powOfTwo: number = 2 ** (index % this.BITS_PER_BUCKET);
+      const bucketOffset: number = (index % this.length) > this.BITS_PER_BUCKET ? 1 : 0
+
+      return (this.board[1 - bucketOffset] & powOfTwo) > 0 ? 1 : 0;
     }
     throw new RangeError('index must be integer greater than or equal to 0 and less than BitBoard.length');
   }
@@ -97,6 +102,7 @@ class BitBoard {
 
     } else if (this.determineIfBitBoard(bitBoardOrIndex)) {
       if (this.length === bitBoardOrIndex.length) {
+
         for (let i = 0; i < this.board.length; i++) {
           newBoard.board[i] &= bitBoardOrIndex.board[i];
         }
@@ -117,8 +123,11 @@ class BitBoard {
 
     if (typeof bitBoardOrIndex === 'number') {
       if (bitBoardOrIndex >= 0 && bitBoardOrIndex < this.length) {
-        const numberOfBuckets = this.length / this.bitsPerByte;
-        newBoard.board[numberOfBuckets - 1 - Math.floor(bitBoardOrIndex / this.bitsPerByte)] |= 2 ** (bitBoardOrIndex % this.bitsPerByte);
+
+        const powOfTwo: number = 2 ** (bitBoardOrIndex % this.BITS_PER_BUCKET);
+        const bucketOffset: number = (bitBoardOrIndex % this.length) > this.BITS_PER_BUCKET ? 1 : 0
+
+        newBoard.board[1 - bucketOffset] |= powOfTwo;
 
         return newBoard;
       }
@@ -126,6 +135,7 @@ class BitBoard {
 
     } else if (this.determineIfBitBoard(bitBoardOrIndex)) {
       if (this.length === bitBoardOrIndex.length) {
+
         for (let i = 0; i < this.board.length; i++) {
           newBoard.board[i] |= bitBoardOrIndex.board[i];
         }
@@ -146,8 +156,11 @@ class BitBoard {
 
     if (typeof bitBoardOrIndex === 'number') {
       if (bitBoardOrIndex >= 0 && bitBoardOrIndex < this.length) {
-        const numberOfBuckets = this.length / this.bitsPerByte;
-        newBoard.board[numberOfBuckets - 1 - Math.floor(bitBoardOrIndex / this.bitsPerByte)] ^= 2 ** (bitBoardOrIndex % this.bitsPerByte);
+
+        const powOfTwo: number = 2 ** (bitBoardOrIndex % this.BITS_PER_BUCKET);
+        const bucketOffset: number = (bitBoardOrIndex % this.length) > this.BITS_PER_BUCKET ? 1 : 0
+
+        newBoard.board[1 - bucketOffset] ^= powOfTwo;
 
         return newBoard;
       }
@@ -155,6 +168,7 @@ class BitBoard {
 
     } else if (this.determineIfBitBoard(bitBoardOrIndex)) {
       if (this.length === bitBoardOrIndex.length) {
+
         for (let i = 0; i < this.board.length; i++) {
           newBoard.board[i] ^= bitBoardOrIndex.board[i];
         }
