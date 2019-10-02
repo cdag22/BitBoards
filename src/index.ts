@@ -253,8 +253,8 @@ class BitBoard {
           newBoard.board[1] = 0;
           newBoard.board[0] = carryDigits;
         } else {
-          newBoard.board[1] = ((newBoard.board[1] << shiftAmount) >>> 0) % (2 ** this.BITS_PER_BUCKET - 1);
-          newBoard.board[0] = ( ( ((newBoard.board[0] << shiftAmount) >>> 0) % (2 ** this.BITS_PER_BUCKET - 1) ) | carryDigits ) >>> 0;
+          newBoard.board[1] = ((newBoard.board[1] << shiftAmount) >>> 0);
+          newBoard.board[0] = ( ((newBoard.board[0] << shiftAmount) >>> 0) | carryDigits ) >>> 0;
         }
 
         return newBoard;
