@@ -1,38 +1,81 @@
-* @author cj dagostino
-/**
- * 
- * @class BitBoard
- * @param bitRows: [optional] Array<number>
- * Each number must be an INTEGER in the range of 0-255; i.e. each number is a byte
- * DEFAULT: bitRows = [0,0,0,0,0,0,0,0].length = 8; i.e. 8 bytes)
- * Each value: n is converted to an integer and then set to 0 if n > 255
- */
+interface BitBoardInputDictionary {
+  boardType?: string,
+  board?: Array<number>
+}
 
+/**
+ * @class BitBoard
+ * 
+ * @param input : object = { [OPTIONAL: boardType, board] }
+ * 
+ * @augments boardType : string equal to one of the following:
+ *      "black", "white", "piece", "pawn", "knight", "bishop", "rook", "queen", "king"
+ * 
+ * @arguments board : [optional] Array<number> with length = 2 and each number n: 0 <= n < 2 ^ 32
+ * 
+ * NOTE:
+ *    if boardType is present, board is ignored
+ *    if neither boardType or board are present, BitBoard.board = [0, 0]
+ */
 class BitBoard {
 
   public board: Array<number>;
   public length: number;
-  private readonly bitsPerByte: number;
   private readonly BITS_PER_BUCKET: number;
   private readonly MAX_BITS: number;
 
-  /**
-   * @param bitRows: Array<number>
-   */
-  constructor(bitRows: number[] = [0, 0]) {
-    if (!Array.isArray(bitRows) || bitRows.some(x => typeof x !== 'number')) {
-      throw new TypeError('Invalid Input. Must be "Array" of "numbers"')
-    }
+  constructor(input: BitBoardInputDictionary) {
+    const { boardType, board } = input;
 
-    this.MAX_BITS = 4294967296;
-    this.board = bitRows;
-    this.length = 64;
+    this.MAX_BITS = 4294967296; // (2 ^ 32)
     this.BITS_PER_BUCKET = 32;
+    this.length = 64;
+    this.board;
 
-  if (bitRows.length !== 2 && !bitRows.every(x => Math.floor(x) === x && x >= 0 && x < this.MAX_BITS)) {
-      throw new RangeError('inputs to bitRows array must be two integers x where  0 <= x < 2 ^ 32 (or 4294967296)');
+    if (boardType) {
+        switch (boardType) {
+          case 'piece':
+            this.board = [4294901760,65535];
+            break;
+          case 'black':
+            this.board = [0,65535];
+            break;
+          case 'white':
+            this.board = [4294901760,0];
+            break;
+          case 'pawn':
+            this.board = [16711680, 65280];
+            break;
+          case 'knight':
+            this.board = [1107296256, 66];
+            break;
+          case 'bishop':
+            this.board = [603979776, 36];
+            break;
+          case 'rook':
+            this.board = [2164260864,129];
+            break;
+          case 'queen':
+            this.board = [268435456, 16];
+            break;
+          case 'king':
+            this.board = [134217728, 8];
+            break;
+          default:
+            throw new Error(`Input: ${boardType} is not a valid value for boardType. Must be one of the following:
+              "black", "white", "piece", "pawn", "knight", "bishop", "rook", "queen", "king"`)
+        }
+    } else if (board) {
+      if (board.length !== 2 && !board.every(x => Math.floor(x) === x && x >= 0 && x < this.MAX_BITS)) {
+        throw new RangeError('inputs to board array must be two integers x where  0 <= x < 2 ^ 32 (or 4294967296)');
+      }
+      this.board = board;
+    } else  {
+      this.board = [0, 0];
     }
   }
+
+  
 
   /**
    * @param bit: Object
@@ -76,7 +119,7 @@ class BitBoard {
       const powOfTwo: number = 2 ** (index % this.BITS_PER_BUCKET);
       const bucketOffset: number = (index % this.length) > this.BITS_PER_BUCKET ? 1 : 0
 
-      return (this.board[1 - bucketOffset] & powOfTwo) > 0 ? 1 : 0;
+      return ((this.board[1 - bucketOffset] & powOfTwo) >>> 0) > 0 ? 1 : 0;
     }
     throw new RangeError('index must be integer greater than or equal to 0 and less than BitBoard.length');
   }
@@ -84,7 +127,7 @@ class BitBoard {
   /**
    * @returns BitBoard
    */
-  copy = (): BitBoard => new BitBoard(this.board.slice());
+  copy = (): BitBoard => new BitBoard({ board: this.board.slice() });
 
   /**
    * 
@@ -104,7 +147,7 @@ class BitBoard {
       if (this.length === bitBoardOrIndex.length) {
 
         for (let i = 0; i < this.board.length; i++) {
-          newBoard.board[i] &= bitBoardOrIndex.board[i];
+          newBoard.board[i] = ((newBoard.board[i] & bitBoardOrIndex.board[i]) >>> 0);
         }
         return newBoard;
       }
@@ -127,7 +170,7 @@ class BitBoard {
         const powOfTwo: number = 2 ** (bitBoardOrIndex % this.BITS_PER_BUCKET);
         const bucketOffset: number = (bitBoardOrIndex % this.length) > this.BITS_PER_BUCKET ? 1 : 0
 
-        newBoard.board[1 - bucketOffset] |= powOfTwo;
+        newBoard.board[1 - bucketOffset] = ((newBoard.board[1 - bucketOffset] | powOfTwo) >>> 0);
 
         return newBoard;
       }
@@ -137,7 +180,7 @@ class BitBoard {
       if (this.length === bitBoardOrIndex.length) {
 
         for (let i = 0; i < this.board.length; i++) {
-          newBoard.board[i] |= bitBoardOrIndex.board[i];
+          newBoard.board[i] = ((newBoard.board[i] | bitBoardOrIndex.board[i]) >>> 0);
         }
         return newBoard;
       }
@@ -160,7 +203,7 @@ class BitBoard {
         const powOfTwo: number = 2 ** (bitBoardOrIndex % this.BITS_PER_BUCKET);
         const bucketOffset: number = (bitBoardOrIndex % this.length) > this.BITS_PER_BUCKET ? 1 : 0
 
-        newBoard.board[1 - bucketOffset] ^= powOfTwo;
+        newBoard.board[1 - bucketOffset] = ((newBoard.board[1 - bucketOffset] ^ powOfTwo) >>> 0);
 
         return newBoard;
       }
@@ -170,7 +213,7 @@ class BitBoard {
       if (this.length === bitBoardOrIndex.length) {
 
         for (let i = 0; i < this.board.length; i++) {
-          newBoard.board[i] ^= bitBoardOrIndex.board[i];
+          newBoard.board[i] = ((newBoard.board[i] ^ bitBoardOrIndex.board[i]) >>> 0);
         }
         return newBoard;
       }
@@ -183,22 +226,11 @@ class BitBoard {
    * @returns BitBoard
    */
   not(): BitBoard {
-    let strBoard: string = this.boardToString();
-    let newStr: string;
-    let notBoard: Array<number> = [];
-    let i: number = 0
-
-    while (i < this.length) {
-      newStr = '';
-
-      while(i % this.bitsPerByte !== 0) {
-        newStr += strBoard[i] === '1' ? '0' : '1';
-        i++;
-      }
-      notBoard.push(parseInt(newStr, 2))
-    }
     const newBoard = this.copy();
-    newBoard.board = notBoard;
+    
+    for (let i: number = 0; i < newBoard.board.length; i++) {
+      newBoard.board[i] = (~newBoard.board[i]) >>> 0;
+    }
     
     return newBoard;
   }
@@ -210,16 +242,21 @@ class BitBoard {
    */
   shiftLeft(shiftAmount: number): BitBoard {
     if (typeof shiftAmount === 'number') {
-      if (shiftAmount >= 0 && shiftAmount <= this.length) {
-        let str: string = this.boardToString();
-        str += '0'.repeat(shiftAmount);
-        str = str.slice(shiftAmount);
+      if (shiftAmount >= 0 && shiftAmount <= this.BITS_PER_BUCKET) {
 
         let newBoard = this.copy();
         
-        for (let i: number = 0, b = 0; i < this.board.length; i++ , b += this.bitsPerByte) {
-          newBoard.board[i] = parseInt(str.slice(b, b + this.bitsPerByte), 2);
+        const bitMask = ((2 ** shiftAmount - 1) << (this.BITS_PER_BUCKET - shiftAmount)) >>> 0;
+        const carryDigits = ((newBoard.board[1] & bitMask) >>> 0) >>> (this.BITS_PER_BUCKET - shiftAmount);
+
+        if (shiftAmount === this.BITS_PER_BUCKET) {
+          newBoard.board[1] = 0;
+          newBoard.board[0] = carryDigits;
+        } else {
+          newBoard.board[1] = ((newBoard.board[1] << shiftAmount) >>> 0) % (2 ** this.BITS_PER_BUCKET - 1);
+          newBoard.board[0] = ( ( ((newBoard.board[0] << shiftAmount) >>> 0) % (2 ** this.BITS_PER_BUCKET - 1) ) | carryDigits ) >>> 0;
         }
+
         return newBoard;
       }
       throw new RangeError('Invalid input. Must be greater than or equal to zero and less than or equal to BitBoard.length');
@@ -234,16 +271,20 @@ class BitBoard {
    */
   shiftRight(shiftAmount: number): BitBoard {
     if (typeof shiftAmount === 'number') {
-      if (shiftAmount >= 0 && shiftAmount <= this.length) {
-        let str = this.boardToString();
-        str = '0'.repeat(shiftAmount) + str;
-        str = str.slice(0, this.length);
-
+      if (shiftAmount >= 0 && shiftAmount <= this.BITS_PER_BUCKET) {
         let newBoard = this.copy();
+        
+        const bitMask = ((2 ** shiftAmount - 1) << (this.BITS_PER_BUCKET - shiftAmount)) >>> 0;
+        const carryDigits = ((newBoard.board[0] << (this.BITS_PER_BUCKET - shiftAmount) >>> 0) & bitMask) >>> 0;
 
-        for (let i = 0, b = 0; i < this.board.length; i++ , b += this.bitsPerByte) {
-          newBoard.board[i] = parseInt(str.slice(b, b + this.bitsPerByte), 2);
+        if (shiftAmount === this.BITS_PER_BUCKET) {
+          newBoard.board[0] = 0;
+          newBoard.board[1] = carryDigits;
+        } else {
+          newBoard.board[0] = (newBoard.board[0] >>> shiftAmount) >>> 0;
+          newBoard.board[1] = ((newBoard.board[1] >>> shiftAmount) | carryDigits) >>> 0;
         }
+
         return newBoard;
       }
       throw new RangeError('Invalid input. Must be greater than or equal to zero and less than or equal to BitBoard.length');
@@ -253,7 +294,6 @@ class BitBoard {
 }
 
 /**
- * @function padString: function
  * @param str: string
  * @param length: number
  * @param padValue: string
