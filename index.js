@@ -61,11 +61,11 @@ var BitBoard = /** @class */ (function () {
                     this.board = [134217728, 8];
                     break;
                 default:
-                    throw new SyntaxError("Input: " + boardType + " is not a valid value for boardType. Must be one of the following:\n              \"black\", \"white\", \"piece\", \"pawn\", \"knight\", \"bishop\", \"rook\", \"queen\", \"king\"");
+                    throw new SyntaxError('Input is not a valid value for boardType. Must be one of the following:\n\t"black", "white", "piece", "pawn", "knight", "bishop", "rook", "queen", "king"');
             }
         }
         else if (board) {
-            if (board.length !== 2 && !board.every(function (x) { return Math.floor(x) === x && x >= 0 && x < _this.MAX_BITS; })) {
+            if (board.length !== 2 || board.some(function (x) { return Math.floor(x) !== x || x < 0 || x >= _this.MAX_BITS; })) {
                 throw new RangeError('inputs to board array must be two integers x where  0 <= x < 2 ^ 32 (or 4294967296)');
             }
             this.board = board;

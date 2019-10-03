@@ -2,23 +2,9 @@
  * @class BitBoard
  * @author Cj D'Agostino
  * 
- * @param input : object = { [optional]: boardType, board }
- * 
- * @augments boardType : [optional] string equal to one of the following:
- *      "black", "white", "piece", "pawn", "knight", "bishop", "rook", "queen", "king"
- * 
- * @arguments board : [optional] Array<number> with length = 2 and each number n: 0 <= n < 2 ^ 32
- * 
- * NOTE:
- *    if boardType is present, board is ignored
- *    if neither boardType or board are present, BitBoard.board = [0, 0]
+ * @param board : [optional] Array<number> of length = 2 where
+ * each number n must be: 0 <= n <= 2 ^ 32 - 1
  */
-
-interface BitBoardInputDictionary {
-  boardType?: string,
-  board?: Array<number>
-}
-
 class BitBoard {
 
   public board: Array<number>;
@@ -26,59 +12,17 @@ class BitBoard {
   private readonly BITS_PER_BUCKET: number;
   private readonly MAX_BITS: number;
 
-  constructor(input: BitBoardInputDictionary) {
-    let boardType;
-    let board;
-
-    if (input) {
-      boardType = input.boardType;
-      board = input.board;
-    }
-
+  constructor(board?: Array<number>) {
     this.MAX_BITS = 4294967296; // (2 ^ 32)
     this.BITS_PER_BUCKET = 32;
     this.length = 64;
     this.board;
 
-    if (boardType) {
-        switch (boardType) {
-          case 'piece':
-            this.board = [4294901760,65535];
-            break;
-          case 'black':
-            this.board = [0,65535];
-            break;
-          case 'white':
-            this.board = [4294901760,0];
-            break;
-          case 'pawn':
-            this.board = [16711680, 65280];
-            break;
-          case 'knight':
-            this.board = [1107296256, 66];
-            break;
-          case 'bishop':
-            this.board = [603979776, 36];
-            break;
-          case 'rook':
-            this.board = [2164260864,129];
-            break;
-          case 'queen':
-            this.board = [268435456, 16];
-            break;
-          case 'king':
-            this.board = [134217728, 8];
-            break;
-          default:
-            throw new SyntaxError(`Input: ${boardType} is not a valid value for boardType. Must be one of the following:
-              "black", "white", "piece", "pawn", "knight", "bishop", "rook", "queen", "king"`);
-            break;
+    if (board) {
+      if (board.length !== 2 || board.some(x => Math.floor(x) !== x || x < 0 || x >= this.MAX_BITS)) {
+          throw new RangeError('inputs to board array must be two integers x where  0 <= x < 2 ^ 32 (or 4294967296)');
         }
-    } else if (board) {
-      if (board.length !== 2 && !board.every(x => Math.floor(x) === x && x >= 0 && x < this.MAX_BITS)) {
-        throw new RangeError('inputs to board array must be two integers x where  0 <= x < 2 ^ 32 (or 4294967296)');
-      }
-      this.board = board;
+        this.board = board;
     } else  {
       this.board = [0, 0];
     }
@@ -88,14 +32,14 @@ class BitBoard {
    * @param bit: Object
    * @returns boolean
    */
-  determineIfBitBoard(bitBoard: BitBoard): boolean {
-    const names = Object.getOwnPropertyNames(bitBoard);
+  determineIfBitBoard(bb: BitBoard): boolean {
+    const names = Object.getOwnPropertyNames(bb);
 
-    const doPrototypesMatch: boolean = Object.getPrototypeOf(bitBoard) === BitBoard.prototype;
+    const doPrototypesMatch: boolean = Object.getPrototypeOf(bb) === BitBoard.prototype;
     const arePropertyNamesCorrect = names.every(name => ['board', 'length', 'BITS_PER_BUCKET', 'MAX_BITS'].indexOf(name) !== -1);
-    const isBoardLengthCorrect: boolean = bitBoard.board && bitBoard.board.length === 2 && bitBoard.length === this.length;
-    const isBoardArrayCorrect: boolean = Array.isArray(bitBoard.board) &&
-      bitBoard.board.every(b => typeof b === 'number' && b >= 0 && b < this.MAX_BITS && Math.floor(b) === b);
+    const isBoardLengthCorrect: boolean = bb.board && bb.board.length === 2 && bb.length === this.length;
+    const isBoardArrayCorrect: boolean = Array.isArray(bb.board) &&
+      bb.board.every(b => typeof b === 'number' && b >= 0 && b < this.MAX_BITS && Math.floor(b) === b);
 
     return arePropertyNamesCorrect && isBoardLengthCorrect && isBoardArrayCorrect && doPrototypesMatch;
   }
@@ -130,26 +74,37 @@ class BitBoard {
   /**
    * @returns BitBoard
    */
-  copy = (): BitBoard => new BitBoard({ board: this.board.slice() });
+  copy = (): BitBoard => new BitBoard(this.board.slice());
+
+
+  isEmpty = (): boolean => this.board[0] === 0 && this.board[1] === 0;
 
   /**
-   * @param bitBoardOrIndex: BitBoard | number
+   * @param bb: BitBoard
    * @returns BitBoard
    */
-  and(bitBoardOrIndex: BitBoard | number): BitBoard {
-    let newBoard: BitBoard = this.copy();
-
-    if (typeof bitBoardOrIndex === 'number') {
+  and(bb: BitBoard): BitBoard {
+    if (this.determineIfBitBoard(bb)) {
+      let newBoard: BitBoard = this.copy();
       
-      if (bitBoardOrIndex >= 0 && bitBoardOrIndex < this.length) {
-        return newBoard;
+      for (let i = 0; i < this.board.length; i++) {
+        newBoard.board[i] = (newBoard.board[i] & bb.board[i]) >>> 0;
       }
-      throw new RangeError('index must be integer greater than or equal to 0 and less than 64')
+      return newBoard;
+    }
+    throw new TypeError('Invalid input. Must be of type BitBoard');
+  }
 
-    } else if (this.determineIfBitBoard(bitBoardOrIndex)) {
+  /**
+   * @param bb: BitBoard
+   * @returns BitBoard
+   */
+  or(bb: BitBoard): BitBoard {
+    if (this.determineIfBitBoard(bb)) {
+      let newBoard: BitBoard = this.copy();
 
       for (let i = 0; i < this.board.length; i++) {
-        newBoard.board[i] = (newBoard.board[i] & bitBoardOrIndex.board[i]) >>> 0;
+        newBoard.board[i] = (newBoard.board[i] | bb.board[i]) >>> 0;
       }
       return newBoard;
     }
@@ -157,29 +112,15 @@ class BitBoard {
   }
 
   /**
-   * @param bitBoardOrIndex: BitBoard | number
+   * @param bb: BitBoard
    * @returns BitBoard
    */
-  or(bitBoardOrIndex: BitBoard | number): BitBoard {
-    let newBoard: BitBoard = this.copy();
-
-    if (typeof bitBoardOrIndex === 'number') {
-      
-      if (bitBoardOrIndex >= 0 && bitBoardOrIndex < this.length) {
-
-        const powOfTwo: number = 2 ** (bitBoardOrIndex % this.BITS_PER_BUCKET);
-        const index: number = bitBoardOrIndex >= this.BITS_PER_BUCKET ? 0 : 1
-
-        newBoard.board[index] = (newBoard.board[index] | powOfTwo) >>> 0;
-
-        return newBoard;
-      }
-      throw new RangeError('index must be integer greater than or equal to 0 and less than 64')
-
-    } else if (this.determineIfBitBoard(bitBoardOrIndex)) {
+  xOr(bb: BitBoard): BitBoard {
+    if (this.determineIfBitBoard(bb)) {
+      let newBoard: BitBoard = this.copy();
 
       for (let i = 0; i < this.board.length; i++) {
-        newBoard.board[i] = (newBoard.board[i] | bitBoardOrIndex.board[i]) >>> 0;
+        newBoard.board[i] = (newBoard.board[i] ^ bb.board[i]) >>> 0;
       }
       return newBoard;
     }
@@ -187,33 +128,65 @@ class BitBoard {
   }
 
   /**
-   * @param bitBoardOrIndex: BitBoard | number
+   * @param shiftAmount : number n such that 0 <= n < 64
+   * @param num : number n such that 0 <= n <= 2 ^ 32 - 1
    * @returns BitBoard
    */
-  xOr(bitBoardOrIndex: BitBoard | number): BitBoard {
-    let newBoard: BitBoard = this.copy();
-
-    if (typeof bitBoardOrIndex === 'number') {
+  orNumber(shiftAmount: number, num: number = 1): BitBoard {
+    if (typeof shiftAmount === 'number') {
       
-      if (bitBoardOrIndex >= 0 && bitBoardOrIndex < this.length) {
+      if (shiftAmount >= 0 && shiftAmount < this.length && num >= 0 && num < this.MAX_BITS) {
+        let newBoard: BitBoard = this.copy();
 
-        const powOfTwo: number = 2 ** (bitBoardOrIndex % this.BITS_PER_BUCKET);
-        const index: number = bitBoardOrIndex >= this.BITS_PER_BUCKET ? 0 : 1;
+        const startDigits = (((num << shiftAmount) >>> 0) & (2 ** 32 - 1)) >>> 0;
+        const startDigitMask = (startDigits & (2 ** 32 - 1)) >>> 0;
+        const numCarryDigits = (num >>> (32 - shiftAmount)) >>> 0;
 
-        newBoard.board[index] = (newBoard.board[index] ^ powOfTwo) >>> 0;
+        if (shiftAmount === 32) {
+          newBoard.board[0] = (newBoard.board[0] | num) >>> 0;
+        } else if (shiftAmount === 0) {
+          newBoard.board[1] = (newBoard.board[1] | startDigitMask) >>> 0;
+        } else {
+          newBoard.board[1] = (newBoard.board[1] | startDigitMask) >>> 0;
+          newBoard.board[0] = (newBoard.board[0] | numCarryDigits) >>> 0;
+        }
 
         return newBoard;
       }
       throw new RangeError('index must be integer greater than or equal to 0 and less than 64')
-
-    } else if (this.determineIfBitBoard(bitBoardOrIndex)) {
-
-      for (let i = 0; i < this.board.length; i++) {
-        newBoard.board[i] = (newBoard.board[i] ^ bitBoardOrIndex.board[i]) >>> 0;
-      }
-      return newBoard;
     }
-    throw new TypeError('Invalid input. Must be of type "BitBoard" or "number"');
+    throw new TypeError('Invalid input. Must be of type number');
+  }
+
+  /**
+   * @param shiftAmount : number n such that 0 <= n < 64
+   * @param num : number n such that 0 <= n <= 2 ^ 32 - 1
+   * @returns BitBoard
+   */
+  xOrNumber(shiftAmount: number, num: number = 1): BitBoard {
+    if (typeof shiftAmount === 'number') {
+      
+      if (shiftAmount >= 0 && shiftAmount < this.length && num >= 0 && num < this.MAX_BITS) {
+        let newBoard: BitBoard = this.copy();
+
+        const startDigits = (((num << shiftAmount) >>> 0) & (2 ** 32 - 1)) >>> 0;
+        const startDigitMask = (startDigits & (2 ** 32 - 1)) >>> 0;
+        const numCarryDigits = (num >>> (32 - shiftAmount)) >>> 0;
+
+        if (shiftAmount === 32) {
+          newBoard.board[0] = (newBoard.board[0] ^ num) >>> 0;
+        } else if (shiftAmount === 0) {
+          newBoard.board[1] = (newBoard.board[1] ^ startDigitMask) >>> 0;
+        } else {
+          newBoard.board[1] = (newBoard.board[1] ^ startDigitMask) >>> 0;
+          newBoard.board[0] = (newBoard.board[0] ^ numCarryDigits) >>> 0;
+        }
+
+        return newBoard;
+      }
+      throw new RangeError('index must be integer greater than or equal to 0 and less than 64')
+    }
+    throw new TypeError('Invalid input. Must be of type number');
   }
 
   /**

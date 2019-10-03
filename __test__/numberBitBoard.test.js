@@ -51,7 +51,7 @@ describe('BitBoard', () => {
     });
 
     it('boardType invalid to throw error', () => {
-      expect(new BitBoard({ boardType: 'wrong' })).toThrow(SyntaxError);
+      expect(new BitBoard({ boardType: 'wrong' })).toThrowError(new SyntaxError('Input is not a valid value for boardType. Must be one of the following:\n\t"black", "white", "piece", "pawn", "knight", "bishop", "rook", "queen", "king"'));
     });
 
     it('boardType empty && board with negative number to throw error', () => {
