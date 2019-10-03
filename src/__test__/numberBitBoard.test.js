@@ -1,9 +1,72 @@
 const BitBoard = require('../index');
 
-xdescribe('BitBoard', () => {
+describe('BitBoard', () => {
 
-  xit('defaults to creating a 64 bit array', () => {
-    expect(new BitBoard().length).toEqual(64);
+  describe('constructor(args = { boardType, board })', () => {
+
+    it('correct defaults for no args', () => {
+      const board = new BitBoard();
+      expect(board.length).toEqual(64);
+      expect(board.board).toEqual([0, 0]);
+    });
+
+    it('boardType superseeds board', () => {
+      expect(new BitBoard({ boardType: 'piece', board: [1, 1] }).board).toEqual([4294901760,65535]);
+    });
+
+    it('boardType === piece', () => {
+      expect(new BitBoard({ boardType: 'piece' }).board).toEqual([4294901760,65535]);
+    });
+
+    it('boardType === black', () => {
+      expect(new BitBoard({ boardType: 'black' }).board).toEqual([0,65535]);
+    });
+    
+    it('boardType === white', () => {
+      expect(new BitBoard({ boardType: 'white' }).board).toEqual([4294901760,0]);
+    });
+    
+    it('boardType === pawn', () => {
+      expect(new BitBoard({ boardType: 'pawn' }).board).toEqual([16711680, 65280]);
+    });
+
+    it('boardType === knight', () => {
+      expect(new BitBoard({ boardType: 'knight' }).board).toEqual([1107296256, 66]);
+    });
+
+    it('boardType === bishop', () => {
+      expect(new BitBoard({ boardType: 'bishop' }).board).toEqual([603979776, 36]);
+    });
+
+    it('boardType === rook', () => {
+      expect(new BitBoard({ boardType: 'rook' }).board).toEqual([2164260864,129]);
+    });
+
+    it('boardType === queen', () => {
+      expect(new BitBoard({ boardType: 'queen' }).board).toEqual([268435456, 16]);
+    });
+
+    it('boardType === king', () => {
+      expect(new BitBoard({ boardType: 'king' }).board).toEqual([134217728, 8]);
+    });
+
+    it('boardType invalid to throw error', () => {
+      expect(new BitBoard({ boardType: 'wrong' })).toThrow(SyntaxError);
+    });
+
+    it('boardType empty && board with negative number to throw error', () => {
+      expect(new BitBoard({ board: [-1, 0] })).toThrow(RangeError);
+    });
+
+    it('boardType empty && board with too large a number to throw error', () => {
+      expect(new BitBoard({ board: [2**33, 0] })).toThrow(RangeError);
+    });
+
+    it('boardType empty && valid board', () => {
+      expect(new BitBoard({ board: [1,1] }).board).toEqual([1,1]);
+    });
+
+
   });
 
   xdescribe('errors', () => {
