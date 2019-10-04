@@ -3,9 +3,8 @@
  * @author Cj D'Agostino
  *
  * @class BitBoard
- *
- * @param board : [optional] Array<number> of length = 2 where
- * each number n must be: 0 <= n <= 2 ^ 32 - 1
+ * @param {board} Array<number> [optional]  --> Must be length = 2 where each number n must be: 0 <= n <= 2 ^ 32 - 1
+ * @exports BitBoard
  *
  * NOTE
  *    the last parameter to all binary operator methods is an [optional] boolean
@@ -16,17 +15,15 @@
 var BitBoard = /** @class */ (function () {
     function BitBoard(board) {
         var _this = this;
-        /**
-         * @returns BitBoard
-         */
-        this.copy = function () { return new BitBoard(_this.board.slice()); };
-        this.isEmpty = function () { return _this.board[0] === 0 && _this.board[1] === 0; };
         this.MAX_BITS = 4294967296; // (2 ^ 32)
         this.BITS_PER_BUCKET = 32;
         this.length = 64;
         this.board;
         if (board) {
-            if (board.length !== 2 || board.some(function (x) { return Math.floor(x) !== x || x < 0 || x >= _this.MAX_BITS; })) {
+            if (!Array.isArray(board) || board.some(function (x) { return typeof x !== 'number'; })) {
+                throw new TypeError('board must be an array');
+            }
+            else if (board.length !== 2 || board.some(function (x) { return Math.floor(x) !== x || x < 0 || x >= _this.MAX_BITS; })) {
                 throw new RangeError('inputs to board array must be two integers x where  0 <= x < 2 ^ 32 (or 4294967296)');
             }
             this.board = board;
@@ -36,21 +33,23 @@ var BitBoard = /** @class */ (function () {
         }
     }
     /**
-     * @param bit: Object
-     * @returns boolean
+     * @method
+     * @param {bit} BitBoard
+     * @returns {boolean}
      */
     BitBoard.prototype.determineIfBitBoard = function (bb) {
         var _this = this;
         var names = Object.getOwnPropertyNames(bb);
         var doPrototypesMatch = Object.getPrototypeOf(bb) === BitBoard.prototype;
         var arePropertyNamesCorrect = names.every(function (name) { return ['board', 'length', 'BITS_PER_BUCKET', 'MAX_BITS'].indexOf(name) !== -1; });
-        var isBoardLengthCorrect = bb.board && bb.board.length === 2 && bb.length === this.length;
+        var isBoardLengthCorrect = bb.board && (bb.board.length === 2) && (bb.length === this.length);
         var isBoardArrayCorrect = Array.isArray(bb.board) &&
-            bb.board.every(function (b) { return typeof b === 'number' && b >= 0 && b < _this.MAX_BITS && Math.floor(b) === b; });
+            bb.board.every(function (n) { return typeof n === 'number' && n >= 0 && n < _this.MAX_BITS && Math.floor(n) === n; });
         return arePropertyNamesCorrect && isBoardLengthCorrect && isBoardArrayCorrect && doPrototypesMatch;
     };
     /**
-     * @returns string
+     * @method
+     * @returns {string}
      */
     BitBoard.prototype.boardToString = function () {
         var str = '';
@@ -60,8 +59,9 @@ var BitBoard = /** @class */ (function () {
         return str;
     };
     /**
-     * @param index : number
-     * @returns 1 or 0
+     * @method
+     * @param {index} number
+     * @returns {1 or 0}
      */
     BitBoard.prototype.getIndex = function (index) {
         if (Math.floor(index) === index && index >= 0 && index < this.length) {
@@ -72,8 +72,20 @@ var BitBoard = /** @class */ (function () {
         throw new RangeError('index must be integer greater than or equal to 0 and less than 64');
     };
     /**
-     * @param bb: BitBoard
+     * @method
      * @returns BitBoard
+     */
+    BitBoard.prototype.copy = function () {
+        return new BitBoard(this.board.slice());
+    };
+    BitBoard.prototype.isEmpty = function () {
+        return this.board[0] === 0 && this.board[1] === 0;
+    };
+    /**
+     * @method
+     * @param {bb} BitBoard
+     * @param {modify} boolean [optional]
+     * @returns {BitBoard}
      */
     BitBoard.prototype.and = function (bb, modify) {
         if (modify === void 0) { modify = false; }
@@ -87,8 +99,10 @@ var BitBoard = /** @class */ (function () {
         throw new TypeError('Invalid input. Must be of type BitBoard');
     };
     /**
-     * @param bb: BitBoard
-     * @returns BitBoard
+     * @method
+     * @param {bb} BitBoard
+     * @param {modify} boolean [optional]
+     * @returns {BitBoard}
      */
     BitBoard.prototype.or = function (bb, modify) {
         if (modify === void 0) { modify = false; }
@@ -102,8 +116,10 @@ var BitBoard = /** @class */ (function () {
         throw new TypeError('Invalid input. Must be of type "BitBoard" or "number"');
     };
     /**
-     * @param bb: BitBoard
-     * @returns BitBoard
+     * @method
+     * @param {bb} BitBoard
+     * @param {modify} boolean [optional]
+     * @returns {BitBoard}
      */
     BitBoard.prototype.xOr = function (bb, modify) {
         if (modify === void 0) { modify = false; }
@@ -117,14 +133,17 @@ var BitBoard = /** @class */ (function () {
         throw new TypeError('Invalid input. Must be of type "BitBoard" or "number"');
     };
     /**
-     * @param shiftAmount : number n such that 0 <= n < 64
-     * @param num : number n such that 0 <= n <= 2 ^ 32 - 1
-     * @returns BitBoard
+     * @method
+     * @param {shiftAmount} number --> n such that 0 <= n < 64
+     * @param {num} number --> n such that 0 <= n <= 2 ^ 32 - 1
+     * @param {modify} boolean [optional]
+     * @returns {BitBoard}
      */
     BitBoard.prototype.orNumber = function (shiftAmount, num, modify) {
+        if (shiftAmount === void 0) { shiftAmount = 0; }
         if (num === void 0) { num = 1; }
         if (modify === void 0) { modify = false; }
-        if (typeof shiftAmount === 'number') {
+        if (typeof shiftAmount === 'number' && typeof num === 'number') {
             if (shiftAmount >= 0 && shiftAmount < this.length && num >= 0 && num < this.MAX_BITS) {
                 var newBoard = modify ? this : this.copy();
                 var startDigits = (((num << shiftAmount) >>> 0) & (Math.pow(2, 32) - 1)) >>> 0;
@@ -142,19 +161,22 @@ var BitBoard = /** @class */ (function () {
                 }
                 return newBoard;
             }
-            throw new RangeError('index must be integer greater than or equal to 0 and less than 64');
+            throw new RangeError('0 <= shiftAmount < 64 && 0 <= num <= 2 ^ 32 - 1');
         }
         throw new TypeError('Invalid input. Must be of type number');
     };
     /**
-     * @param shiftAmount : number n such that 0 <= n < 64
-     * @param num : number n such that 0 <= n <= 2 ^ 32 - 1
-     * @returns BitBoard
+     * @method
+     * @param {shiftAmount} number --> n such that 0 <= n < 64
+     * @param {num} number --> n such that 0 <= n <= 2 ^ 32 - 1
+     * @param {modify} boolean [optional]
+     * @returns {BitBoard}
      */
     BitBoard.prototype.xOrNumber = function (shiftAmount, num, modify) {
+        if (shiftAmount === void 0) { shiftAmount = 0; }
         if (num === void 0) { num = 1; }
         if (modify === void 0) { modify = false; }
-        if (typeof shiftAmount === 'number') {
+        if (typeof shiftAmount === 'number' && typeof num === 'number') {
             if (shiftAmount >= 0 && shiftAmount < this.length && num >= 0 && num < this.MAX_BITS) {
                 var newBoard = modify ? this : this.copy();
                 var startDigits = (((num << shiftAmount) >>> 0) & (Math.pow(2, 32) - 1)) >>> 0;
@@ -172,11 +194,13 @@ var BitBoard = /** @class */ (function () {
                 }
                 return newBoard;
             }
-            throw new RangeError('index must be integer greater than or equal to 0 and less than 64');
+            throw new RangeError('0 <= shiftAmount < 64 && 0 <= num <= 2 ^ 32 - 1');
         }
         throw new TypeError('Invalid input. Must be of type number');
     };
     /**
+     * @method
+     * @param {modify} boolean [optional]
      * @returns BitBoard
      */
     BitBoard.prototype.not = function (modify) {
@@ -188,8 +212,10 @@ var BitBoard = /** @class */ (function () {
         return newBoard;
     };
     /**
-     * @param shiftAmount: number
-     * @returns BitBoard
+     * @method
+     * @param {shiftAmount} number
+     * @param {modify} boolean [optional]
+     * @returns {BitBoard}
      */
     BitBoard.prototype.shiftLeft = function (shiftAmount, modify) {
         if (modify === void 0) { modify = false; }
@@ -213,8 +239,10 @@ var BitBoard = /** @class */ (function () {
         throw new TypeError('Invalid input. Must be "number"');
     };
     /**
-     * @param shiftAmount: number
-     * @returns BitBoard
+     * @method
+     * @param {shiftAmount} number
+     * @param {modify} boolean [optional]
+     * @returns {BitBoard}
      */
     BitBoard.prototype.shiftRight = function (shiftAmount, modify) {
         if (modify === void 0) { modify = false; }
@@ -240,11 +268,12 @@ var BitBoard = /** @class */ (function () {
     return BitBoard;
 }());
 /**
- * @param str: string
- * @param length: number
- * @param padValue: string
- * @param start: boolean
- * @returns string
+ * @function
+ * @param {str} string
+ * @param {length} number
+ * @param {padValue} string
+ * @param {start} boolean
+ * @returns {string}
  */
 function padString(str, length, padValue, start) {
     if (start) {

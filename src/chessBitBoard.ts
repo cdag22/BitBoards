@@ -10,18 +10,14 @@ interface BitBoardInputDictionary {
  * @author Cj D'Agostino
  * 
  * @class ChessBitBoard
- * @extends BitBoard
- * 
- * @param input : object = { boardType, board, lsb }
- * 
+ * @extends {BitBoard}
+ * @param {input} object = { boardType, board, lsb }
  * @augments boardType : string [optional] 
  * Valid inputs are:
  *      "black", "white", "piece", "pawn", "knight", "bishop", "rook", "queen", "king"
- * 
  * @arguments board : Array<number> [optional]
  * With length = 2
  * Each number n must satisfy: 0 <= n <= 2 ^ 32 - 1 (i.e. the largest 32 digit binary number)
- * 
  * @arguments lsb: string [optional]
  * Represents the square for the Least Significant Bit. Default is 'undefined'. Only valid input is "a1".
  * The difference between "a1" and default is that boards for "white" and "black" swap.
@@ -49,7 +45,7 @@ interface BitBoardInputDictionary {
 class ChessBitBoard extends BitBoard {
 
   constructor(input: BitBoardInputDictionary) {
-    if (input.boardType) {
+    if (input && input.boardType) {
       switch (input.boardType) {
         case 'piece':
           super([4294901760, 65535]);
@@ -81,7 +77,7 @@ class ChessBitBoard extends BitBoard {
         default:
           throw new SyntaxError('Input is not a valid value for boardType. Must be one of the following:\n\t"black", "white", "piece", "pawn", "knight", "bishop", "rook", "queen", "king"');
       }
-    } else if (input.board) {
+    } else if (input && input.board) {
         super(input.board); // this.board = custom input
     } else {
       super(); // this.board = [0, 0];

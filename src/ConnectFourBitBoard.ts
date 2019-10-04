@@ -4,11 +4,10 @@ import BitBoard = require("./BitBoard");
  * @author Cj D'Agostino
  * 
  * @class ConnectFourBitBoard
- * @extends BitBoard
- * 
- * @param board : [optional] Array<number>
- * With length = 2
- * Each number n must satisfy: 0 <= n <= 2 ^ 32 - 1 (i.e. the largest 32 digit binary number)
+ * @extends {BitBoard}
+ * @param {board} Array<number> [optional]
+ *    With length = 2
+ *    Each number n must satisfy: 0 <= n <= 2 ^ 32 - 1 (i.e. the largest 32 digit binary number)
  */
 
 class ConnectFourBitBoard extends BitBoard {
@@ -18,9 +17,10 @@ class ConnectFourBitBoard extends BitBoard {
   }
 
   /**
-   * @param bb : ConnectFourBitBoard for a team, i.e. BitBoard for 'X' or "O"
-   * 
    * Calculates whether the given team has won
+   * @method
+   * @static
+   * @param {bb} ConnectFourBitBoard  --> Board for a team, i.e. BitBoard for 'X' or "O"
    */
   public static isWin(bb: ConnectFourBitBoard): boolean {
     const directions: Array<number> = [1, 7, 6, 8];

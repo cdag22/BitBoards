@@ -2,9 +2,8 @@
  * @author Cj D'Agostino
  * 
  * @class BitBoard
- * 
- * @param board : [optional] Array<number> of length = 2 where
- * each number n must be: 0 <= n <= 2 ^ 32 - 1
+ * @param {board} Array<number> [optional]  --> Must be length = 2 where each number n must be: 0 <= n <= 2 ^ 32 - 1
+ * @exports BitBoard
  * 
  * NOTE
  *    the last parameter to all binary operator methods is an [optional] boolean
@@ -26,7 +25,9 @@ class BitBoard {
     this.board;
 
     if (board) {
-      if (board.length !== 2 || board.some(x => Math.floor(x) !== x || x < 0 || x >= this.MAX_BITS)) {
+      if (!Array.isArray(board) || board.some(x => typeof x !== 'number')) {
+        throw new TypeError('board must be an array');
+      } else if (board.length !== 2 || board.some(x => Math.floor(x) !== x || x < 0 || x >= this.MAX_BITS)) {
           throw new RangeError('inputs to board array must be two integers x where  0 <= x < 2 ^ 32 (or 4294967296)');
         }
         this.board = board;
@@ -36,23 +37,25 @@ class BitBoard {
   }
 
   /**
-   * @param bit: Object
-   * @returns boolean
+   * @method
+   * @param {bit} BitBoard
+   * @returns {boolean}
    */
   determineIfBitBoard(bb: BitBoard): boolean {
     const names = Object.getOwnPropertyNames(bb);
 
     const doPrototypesMatch: boolean = Object.getPrototypeOf(bb) === BitBoard.prototype;
     const arePropertyNamesCorrect = names.every(name => ['board', 'length', 'BITS_PER_BUCKET', 'MAX_BITS'].indexOf(name) !== -1);
-    const isBoardLengthCorrect: boolean = bb.board && bb.board.length === 2 && bb.length === this.length;
+    const isBoardLengthCorrect: boolean = bb.board && (bb.board.length === 2) && (bb.length === this.length);
     const isBoardArrayCorrect: boolean = Array.isArray(bb.board) &&
-      bb.board.every(b => typeof b === 'number' && b >= 0 && b < this.MAX_BITS && Math.floor(b) === b);
+      bb.board.every(n => typeof n === 'number' && n >= 0 && n < this.MAX_BITS && Math.floor(n) === n);
 
     return arePropertyNamesCorrect && isBoardLengthCorrect && isBoardArrayCorrect && doPrototypesMatch;
   }
   
   /**
-   * @returns string
+   * @method
+   * @returns {string}
    */
   boardToString(): string {
     let str = '';
@@ -64,8 +67,9 @@ class BitBoard {
   }
 
   /**
-   * @param index : number
-   * @returns 1 or 0
+   * @method
+   * @param {index} number
+   * @returns {1 or 0}
    */
   getIndex(index: number): number {
     if (Math.floor(index) === index && index >= 0 && index < this.length) {
@@ -79,16 +83,23 @@ class BitBoard {
   }
 
   /**
+   * @method
    * @returns BitBoard
    */
-  copy = (): BitBoard => new BitBoard(this.board.slice());
+  copy(): BitBoard {
+    return new BitBoard(this.board.slice());
+  }
 
 
-  isEmpty = (): boolean => this.board[0] === 0 && this.board[1] === 0;
+  isEmpty(): boolean {
+    return this.board[0] === 0 && this.board[1] === 0;
+  }
 
   /**
-   * @param bb: BitBoard
-   * @returns BitBoard
+   * @method
+   * @param {bb} BitBoard
+   * @param {modify} boolean [optional]
+   * @returns {BitBoard}
    */
   and(bb: BitBoard, modify: boolean = false): BitBoard {
     if (this.determineIfBitBoard(bb)) {
@@ -103,8 +114,10 @@ class BitBoard {
   }
 
   /**
-   * @param bb: BitBoard
-   * @returns BitBoard
+   * @method
+   * @param {bb} BitBoard
+   * @param {modify} boolean [optional]
+   * @returns {BitBoard}
    */
   or(bb: BitBoard, modify: boolean = false): BitBoard {
     if (this.determineIfBitBoard(bb)) {
@@ -119,8 +132,10 @@ class BitBoard {
   }
 
   /**
-   * @param bb: BitBoard
-   * @returns BitBoard
+   * @method
+   * @param {bb} BitBoard
+   * @param {modify} boolean [optional]
+   * @returns {BitBoard}
    */
   xOr(bb: BitBoard, modify: boolean = false): BitBoard {
     if (this.determineIfBitBoard(bb)) {
@@ -135,12 +150,14 @@ class BitBoard {
   }
 
   /**
-   * @param shiftAmount : number n such that 0 <= n < 64
-   * @param num : number n such that 0 <= n <= 2 ^ 32 - 1
-   * @returns BitBoard
+   * @method
+   * @param {shiftAmount} number --> n such that 0 <= n < 64
+   * @param {num} number --> n such that 0 <= n <= 2 ^ 32 - 1
+   * @param {modify} boolean [optional]
+   * @returns {BitBoard}
    */
-  orNumber(shiftAmount: number, num: number = 1, modify: boolean = false): BitBoard {
-    if (typeof shiftAmount === 'number') {
+  orNumber(shiftAmount: number = 0, num: number = 1, modify: boolean = false): BitBoard {
+    if (typeof shiftAmount === 'number' && typeof num === 'number') {
       
       if (shiftAmount >= 0 && shiftAmount < this.length && num >= 0 && num < this.MAX_BITS) {
         let newBoard: BitBoard = modify ? this : this.copy();
@@ -160,18 +177,20 @@ class BitBoard {
 
         return newBoard;
       }
-      throw new RangeError('index must be integer greater than or equal to 0 and less than 64')
+      throw new RangeError('0 <= shiftAmount < 64 && 0 <= num <= 2 ^ 32 - 1')
     }
     throw new TypeError('Invalid input. Must be of type number');
   }
 
   /**
-   * @param shiftAmount : number n such that 0 <= n < 64
-   * @param num : number n such that 0 <= n <= 2 ^ 32 - 1
-   * @returns BitBoard
+   * @method
+   * @param {shiftAmount} number --> n such that 0 <= n < 64
+   * @param {num} number --> n such that 0 <= n <= 2 ^ 32 - 1
+   * @param {modify} boolean [optional]
+   * @returns {BitBoard}
    */
-  xOrNumber(shiftAmount: number, num: number = 1, modify: boolean = false): BitBoard {
-    if (typeof shiftAmount === 'number') {
+  xOrNumber(shiftAmount: number = 0, num: number = 1, modify: boolean = false): BitBoard {
+    if (typeof shiftAmount === 'number' && typeof num === 'number') {
       
       if (shiftAmount >= 0 && shiftAmount < this.length && num >= 0 && num < this.MAX_BITS) {
         let newBoard: BitBoard = modify ? this : this.copy();
@@ -191,12 +210,14 @@ class BitBoard {
 
         return newBoard;
       }
-      throw new RangeError('index must be integer greater than or equal to 0 and less than 64')
+      throw new RangeError('0 <= shiftAmount < 64 && 0 <= num <= 2 ^ 32 - 1')
     }
     throw new TypeError('Invalid input. Must be of type number');
   }
 
   /**
+   * @method
+   * @param {modify} boolean [optional]
    * @returns BitBoard
    */
   not(modify: boolean = false): BitBoard {
@@ -209,8 +230,10 @@ class BitBoard {
   }
 
   /**
-   * @param shiftAmount: number
-   * @returns BitBoard
+   * @method
+   * @param {shiftAmount} number
+   * @param {modify} boolean [optional]
+   * @returns {BitBoard}
    */
   shiftLeft(shiftAmount: number, modify: boolean = false): BitBoard {
     if (typeof shiftAmount === 'number') {
@@ -237,8 +260,10 @@ class BitBoard {
   }
 
   /**
-   * @param shiftAmount: number
-   * @returns BitBoard
+   * @method
+   * @param {shiftAmount} number
+   * @param {modify} boolean [optional]
+   * @returns {BitBoard}
    */
   shiftRight(shiftAmount: number, modify: boolean = false): BitBoard {
     if (typeof shiftAmount === 'number') {
@@ -265,11 +290,12 @@ class BitBoard {
 }
 
 /**
- * @param str: string
- * @param length: number
- * @param padValue: string
- * @param start: boolean
- * @returns string
+ * @function
+ * @param {str} string
+ * @param {length} number
+ * @param {padValue} string
+ * @param {start} boolean
+ * @returns {string}
  */
 function padString(str: string, length: number, padValue: string, start: boolean): string {
   if (start) {
