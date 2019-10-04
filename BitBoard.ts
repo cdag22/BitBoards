@@ -145,7 +145,7 @@ class BitBoard {
       if (shiftAmount >= 0 && shiftAmount < this.length && num >= 0 && num < this.MAX_BITS) {
         let newBoard: BitBoard = modify ? this : this.copy();
 
-        const startDigits = (((num << shiftAmount) >>> 0) & (2 ** 32 - 1)) >>> 0;
+        const startDigits = (((num << shiftAmount) >>> 0) & (Math.pow(2,32) - 1)) >>> 0;
         const startDigitMask = (startDigits & (2 ** 32 - 1)) >>> 0;
         const numCarryDigits = (num >>> (32 - shiftAmount)) >>> 0;
 
@@ -176,8 +176,8 @@ class BitBoard {
       if (shiftAmount >= 0 && shiftAmount < this.length && num >= 0 && num < this.MAX_BITS) {
         let newBoard: BitBoard = modify ? this : this.copy();
 
-        const startDigits = (((num << shiftAmount) >>> 0) & (2 ** 32 - 1)) >>> 0;
-        const startDigitMask = (startDigits & (2 ** 32 - 1)) >>> 0;
+        const startDigits = (((num << shiftAmount) >>> 0) & (Math.pow(2, 32) - 1)) >>> 0;
+        const startDigitMask = (startDigits & (Math.pow(2, 32) - 1)) >>> 0;
         const numCarryDigits = (num >>> (32 - shiftAmount)) >>> 0;
 
         if (shiftAmount === 32) {
@@ -218,7 +218,7 @@ class BitBoard {
 
         let newBoard = modify ? this : this.copy();
         
-        const bitMask = ((2 ** shiftAmount - 1) << (this.BITS_PER_BUCKET - shiftAmount)) >>> 0;
+        const bitMask = ((Math.pow(2, shiftAmount) - 1) << (this.BITS_PER_BUCKET - shiftAmount)) >>> 0;
         const carryDigits = ((newBoard.board[1] & bitMask) >>> 0) >>> (this.BITS_PER_BUCKET - shiftAmount);
 
         if (shiftAmount === this.BITS_PER_BUCKET) {
@@ -245,7 +245,7 @@ class BitBoard {
       if (shiftAmount >= 0 && shiftAmount <= this.BITS_PER_BUCKET) {
         let newBoard = modify ? this : this.copy();
         
-        const bitMask = ((2 ** shiftAmount - 1) << (this.BITS_PER_BUCKET - shiftAmount)) >>> 0;
+        const bitMask = ((Math.pow(2, shiftAmount) - 1) << (this.BITS_PER_BUCKET - shiftAmount)) >>> 0;
         const carryDigits = ((newBoard.board[0] << (this.BITS_PER_BUCKET - shiftAmount) >>> 0) & bitMask) >>> 0;
 
         if (shiftAmount === this.BITS_PER_BUCKET) {

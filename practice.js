@@ -68,9 +68,58 @@ function boardToString(arr) {
   return str;
 }
 
-for (let i = 0; i <= 32; i++) {
-  let arr = [2**i - 1, 2**i - 1];
-  let num = 1;
-  let shifted = xOrNumber(24,num, arr.slice());
-  console.log(`${boardToString(arr)} | ${num.toString(2).padStart(32, '0')} ${boardToString(shifted)} | ${i}`)
+// for (let i = 0; i <= 32; i++) {
+//   let arr = [2**i - 1, 2**i - 1];
+//   let num = 4;
+//   let shifted = shiftLeft(num, arr.slice());
+//   console.log(`${boardToString(arr)} | ${num.toString(2).padStart(32, '0')} ${boardToString(shifted)} | ${i}`)
+// }
+
+
+
+
+/**
+ * TESTING SPEEDS
+ */
+var one = () => (429496295 & (2 ** 32 - 1)) >>> 0;
+var two = () => (429496295 & (0xFFFFFF)) >>> 0;
+var three = () => (429496295 & (Math.pow(2, 32) - 1)) >>> 0;
+var timeIt = (func) => {
+  var t1 = performance.now();
+  func();
+  var t2 = performance.now();
+  return t2 - t1;
+};
+var getMean = (func, bound = 100000) => {
+  var mean = [];
+  for (let i = 0; i < bound; i++) {
+    mean.push(timeIt(func))
+  }
+  return mean.reduce((cur, acc) => cur + acc, 0) / mean.length;
 }
+var means = () => {
+  return Promise.all([getMean(one), getMean(two), getMean(three)]).then(([one, two, three]) => {
+    let m = {
+      [one]: 'one',
+      [two]: 'two',
+      [three]: 'three',
+    };
+    let min = Math.min(one, two, three);
+    return m[min];
+  });
+}
+var mode = (arr) => {
+  let tracker = {};
+  arr.forEach(x => tracker[x] = (tracker[x] || 0) + 1);
+  let maxValue = Math.max(...Object.values(tracker));
+  return Object.keys(tracker).reduce((key, acc) => tracker[key] === maxValue ? key : acc, '');
+}
+var manyMeans = (iter) => {
+  Promise.all(Array.from({ length : iter }, (_,i) => means())).then((arr) => console.log(`After ${iter} iterations best = ${mode(arr)}`))
+}
+/**
+ * RESULTS
+ * 
+ * manyMeans(1000)
+ * After 1000 iterations best = three
+ */
