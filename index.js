@@ -2,9 +2,9 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var BitBoard_1 = __importDefault(require("./BitBoard"));
-var ChessBitBoard_1 = __importDefault(require("./ChessBitBoard"));
-var ConnectFourBitBoard_1 = __importDefault(require("./ConnectFourBitBoard"));
+var BitBoard_1 = __importDefault(require("./src/BitBoard"));
+var ChessBitBoard_1 = __importDefault(require("./src/ChessBitBoard"));
+var ConnectFourBitBoard_1 = __importDefault(require("./src/ConnectFourBitBoard"));
 
 if (typeof exports !== 'undefined') {
   /*
