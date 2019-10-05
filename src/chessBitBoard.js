@@ -96,4 +96,4 @@ var ChessBitBoard = /** @class */ (function (_super) {
     return ChessBitBoard;
 }(BitBoard));
 module.exports = ChessBitBoard;
-//# sourceMappingURL=chessBitBoard.js.map
+//# sourceMappingURL=ChessBitBoard.js.map

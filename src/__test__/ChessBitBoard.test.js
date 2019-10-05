@@ -1,4 +1,4 @@
-const ChessBitBoard = require('../ChessBitBoard');
+const ChessBitBoard = require('../ChessBitBoard.js');
 
 describe('ChessBitBoard', () => {
   
