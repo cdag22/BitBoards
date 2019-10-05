@@ -1,4 +1,4 @@
-# JavaScript & TypeScript BitBoard Class
+# JavaScript & TypeScript BitBoard Classes
 
 [![Build Status](https://travis-ci.org/cdag22/BitBoards.svg?branch=master)](https://travis-ci.org/cdag22/BitBoards)
 
