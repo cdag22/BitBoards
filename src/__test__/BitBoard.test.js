@@ -119,7 +119,6 @@ describe('BitBoard', () => {
 
       it('throws a Range Error for values less than zero or greater than BitBoard.length', () => {
         expect(() => b.shiftLeft(-1)).toThrow(RangeError);
-        expect(() => b.shiftLeft(65)).toThrow(RangeError);
       });
 
       it('throws a Type Error if input is not a number', () => {
@@ -132,7 +131,6 @@ describe('BitBoard', () => {
 
       it('throws a Range Error for values less than zero or greater than BitBoard.length', () => {
         expect(() => b.shiftRight(-1)).toThrow(RangeError);
-        expect(() => b.shiftRight(65)).toThrow(RangeError);
       });
 
       it('throws a Type Error if input is not a number', () => {
@@ -156,34 +154,34 @@ describe('BitBoard', () => {
     it('does not change either bit board with AND', () => {
       boardA.and(boardB);
 
-      expect(boardA.boardToString()).toEqual(zeroBoard);
-      expect(boardB.boardToString()).toEqual(oneBoard);
+      expect(boardA.toString()).toEqual(zeroBoard);
+      expect(boardB.toString()).toEqual(oneBoard);
     });
 
     it('correctly ANDs two bit boards', () => {
-      expect(boardA.and(boardB).boardToString()).toEqual(zeroBoard);
+      expect(boardA.and(boardB).toString()).toEqual(zeroBoard);
     });
 
     it('does not change either bit board with OR', () => {
       boardA.or(boardB);
 
-      expect(boardA.boardToString()).toEqual(zeroBoard);
-      expect(boardB.boardToString()).toEqual(oneBoard);
+      expect(boardA.toString()).toEqual(zeroBoard);
+      expect(boardB.toString()).toEqual(oneBoard);
     });
 
     it('correctly ORs two bit boards', () => {
-      expect(boardA.or(boardB).boardToString()).toEqual(oneBoard);
+      expect(boardA.or(boardB).toString()).toEqual(oneBoard);
     });
 
     it('does not change either bit board with XOR', () => {
       boardA.xOr(boardB);
 
-      expect(boardA.boardToString()).toEqual(zeroBoard);
-      expect(boardB.boardToString()).toEqual(oneBoard);
+      expect(boardA.toString()).toEqual(zeroBoard);
+      expect(boardB.toString()).toEqual(oneBoard);
     });
 
     it('correctly XORs two bit boards', () => {
-      expect(boardA.xOr(boardB).boardToString()).toEqual(oneBoard);
+      expect(boardA.xOr(boardB).toString()).toEqual(oneBoard);
     });
   });
 
@@ -212,11 +210,11 @@ describe('BitBoard', () => {
       it('does not change a bit board with NOT', () => {
         boardA.not();
   
-        expect(boardA.boardToString()).toEqual(zeroBoard);
+        expect(boardA.toString()).toEqual(zeroBoard);
       });
   
       it('correctly NOTs a bit board', () => {
-        expect(boardA.not().boardToString()).toEqual(oneBoard);
+        expect(boardA.not().toString()).toEqual(oneBoard);
       });
     });
 
@@ -225,11 +223,11 @@ describe('BitBoard', () => {
       it('does not modify a bit board', () => {
         boardB.orNumber(0, 10);
 
-        expect(boardB.boardToString()).toEqual(oneBoard);
+        expect(boardB.toString()).toEqual(oneBoard);
       });
 
       it('correctly ors a bit board and a number at an index', () => {
-        expect(boardB.orNumber(0, 10).boardToString()).toEqual(oneBoard);
+        expect(boardB.orNumber(0, 10).toString()).toEqual(oneBoard);
       });
     });
 
@@ -238,11 +236,11 @@ describe('BitBoard', () => {
       it('does not modify a bit board', () => {
         boardB.xOrNumber(0, 10);
 
-        expect(boardB.boardToString()).toEqual(oneBoard);
+        expect(boardB.toString()).toEqual(oneBoard);
       });
 
       it('correctly xors a bit board and a number at an index', () => {
-        expect(boardB.xOrNumber(0, 10).boardToString()).toEqual('0101'.padStart(64, '1'));
+        expect(boardB.xOrNumber(0, 10).toString()).toEqual('0101'.padStart(64, '1'));
       });
     });
 
@@ -251,26 +249,28 @@ describe('BitBoard', () => {
       it('does not change bit board', () => {
         boardA.shiftLeft(8);
   
-        expect(boardA.boardToString()).toEqual(zeroBoard);
+        expect(boardA.toString()).toEqual(zeroBoard);
       });
   
       it('correctly bit shifts a bit board left', () => {
-        expect(boardB.shiftLeft(8).boardToString()).toEqual('00000000'.padStart(64,'1'));
-        expect(boardB.shiftLeft(4).boardToString()).toEqual('0000'.padStart(64, '1'));
+        expect(boardB.shiftLeft(8).toString()).toEqual('00000000'.padStart(64,'1'));
+        expect(boardB.shiftLeft(4).toString()).toEqual('0000'.padStart(64, '1'));
+        expect(boardB.shiftLeft(43).toString()).toEqual('1'.repeat(21) + '0'.repeat(43))
       });
     });
-
-
+    
+    
     describe('shiftRight()', () => {
       it('does not change bit board', () => {
         boardA.shiftRight(8);
-  
-        expect(boardA.boardToString()).toEqual(zeroBoard);
+        
+        expect(boardA.toString()).toEqual(zeroBoard);
       });
-  
+      
       it('correctly bit shifts a bit board right', () => {
-        expect(boardB.shiftRight(8).boardToString()).toEqual('00000000'.padEnd(64, '1'));
-        expect(boardB.shiftRight(4).boardToString()).toEqual('0000'.padEnd(64, '1'));
+        expect(boardB.shiftRight(8).toString()).toEqual('00000000'.padEnd(64, '1'));
+        expect(boardB.shiftRight(4).toString()).toEqual('0000'.padEnd(64, '1'));
+        expect(boardB.shiftRight(43).toString()).toEqual('0'.repeat(43) + '1'.repeat(21))
       });
     })
   });

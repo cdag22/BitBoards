@@ -7,11 +7,11 @@
  * @exports BitBoard
  *
  * NOTE
- *    the last parameter to all binary operator methods is an [optional] boolean
- *    flag {modify}. When true the BitBoard calling the method will be modified
- *    as opposed to leaving the calling BitBoard unchanged and returning a new BitBoard.
- *    If a BitBoard is an argument to a method it is ALWAYS left unchanged.
- */
+*    the last parameter to all binary operator methods is an [optional] boolean
+*    flag {modify}. When true the BitBoard calling the method will be modified
+*    as opposed to leaving the calling BitBoard unchanged and returning a new BitBoard.
+*    If a BitBoard is an argument to a method it is ALWAYS left unchanged.
+*/
 var BitBoard = /** @class */ (function () {
     function BitBoard(board) {
         var _this = this;
@@ -51,7 +51,7 @@ var BitBoard = /** @class */ (function () {
      * @method
      * @returns {string}
      */
-    BitBoard.prototype.boardToString = function () {
+    BitBoard.prototype.toString = function () {
         var str = '';
         for (var i = 0; i < this.board.length; i++) {
             str += padString((this.board[i] >>> 0).toString(2), this.BITS_PER_BUCKET, '0', true);
@@ -155,6 +155,9 @@ var BitBoard = /** @class */ (function () {
                 else if (shiftAmount === 0) {
                     newBoard.board[1] = (newBoard.board[1] | startDigitMask) >>> 0;
                 }
+                else if (shiftAmount > 32 && shiftAmount < 64) {
+                    newBoard.board[0] = (newBoard.board[0] | startDigitMask) >>> 0;
+                }
                 else {
                     newBoard.board[1] = (newBoard.board[1] | startDigitMask) >>> 0;
                     newBoard.board[0] = (newBoard.board[0] | numCarryDigits) >>> 0;
@@ -188,6 +191,9 @@ var BitBoard = /** @class */ (function () {
                 else if (shiftAmount === 0) {
                     newBoard.board[1] = (newBoard.board[1] ^ startDigitMask) >>> 0;
                 }
+                else if (shiftAmount > 32) {
+                    newBoard.board[0] = (newBoard.board[0] ^ startDigitMask) >>> 0;
+                }
                 else {
                     newBoard.board[1] = (newBoard.board[1] ^ startDigitMask) >>> 0;
                     newBoard.board[0] = (newBoard.board[0] ^ numCarryDigits) >>> 0;
@@ -220,7 +226,7 @@ var BitBoard = /** @class */ (function () {
     BitBoard.prototype.shiftLeft = function (shiftAmount, modify) {
         if (modify === void 0) { modify = false; }
         if (typeof shiftAmount === 'number') {
-            if (shiftAmount >= 0 && shiftAmount <= this.BITS_PER_BUCKET) {
+            if (shiftAmount >= 0) {
                 var newBoard = modify ? this : this.copy();
                 var bitMask = ((Math.pow(2, shiftAmount) - 1) << (this.BITS_PER_BUCKET - shiftAmount)) >>> 0;
                 var carryDigits = ((newBoard.board[1] & bitMask) >>> 0) >>> (this.BITS_PER_BUCKET - shiftAmount);
@@ -228,13 +234,21 @@ var BitBoard = /** @class */ (function () {
                     newBoard.board[1] = 0;
                     newBoard.board[0] = carryDigits;
                 }
+                else if (shiftAmount > this.BITS_PER_BUCKET && shiftAmount < this.length) {
+                    newBoard.board[0] = (newBoard.board[1] << (shiftAmount - this.BITS_PER_BUCKET)) >>> 0;
+                    newBoard.board[1] = 0;
+                }
+                else if (shiftAmount >= this.length) {
+                    newBoard.board[0] = 0;
+                    newBoard.board[1] = 0;
+                }
                 else {
                     newBoard.board[1] = (newBoard.board[1] << shiftAmount) >>> 0;
                     newBoard.board[0] = (((newBoard.board[0] << shiftAmount) >>> 0) | carryDigits) >>> 0;
                 }
                 return newBoard;
             }
-            throw new RangeError('Invalid input. index n must satisfy 0 <= n <= 64');
+            throw new RangeError('Invalid input. index must be >= 0');
         }
         throw new TypeError('Invalid input. Must be "number"');
     };
@@ -247,7 +261,7 @@ var BitBoard = /** @class */ (function () {
     BitBoard.prototype.shiftRight = function (shiftAmount, modify) {
         if (modify === void 0) { modify = false; }
         if (typeof shiftAmount === 'number') {
-            if (shiftAmount >= 0 && shiftAmount <= this.BITS_PER_BUCKET) {
+            if (shiftAmount >= 0) {
                 var newBoard = modify ? this : this.copy();
                 var bitMask = ((Math.pow(2, shiftAmount) - 1) << (this.BITS_PER_BUCKET - shiftAmount)) >>> 0;
                 var carryDigits = ((newBoard.board[0] << (this.BITS_PER_BUCKET - shiftAmount) >>> 0) & bitMask) >>> 0;
@@ -255,13 +269,21 @@ var BitBoard = /** @class */ (function () {
                     newBoard.board[0] = 0;
                     newBoard.board[1] = carryDigits;
                 }
+                else if (shiftAmount > this.BITS_PER_BUCKET && shiftAmount < this.length) {
+                    newBoard.board[1] = (newBoard.board[0] >>> (shiftAmount - this.BITS_PER_BUCKET)) >>> 0;
+                    newBoard.board[0] = 0;
+                }
+                else if (shiftAmount >= this.length) {
+                    newBoard.board[0] = 0;
+                    newBoard.board[1] = 0;
+                }
                 else {
                     newBoard.board[0] = (newBoard.board[0] >>> shiftAmount) >>> 0;
                     newBoard.board[1] = ((newBoard.board[1] >>> shiftAmount) | carryDigits) >>> 0;
                 }
                 return newBoard;
             }
-            throw new RangeError('Invalid input. index n must satisfy 0 <= n <= 64');
+            throw new RangeError('Invalid input. index must be >= 0');
         }
         throw new TypeError('Invalid input. Must be "number"');
     };

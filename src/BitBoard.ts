@@ -6,11 +6,11 @@
  * @exports BitBoard
  * 
  * NOTE
- *    the last parameter to all binary operator methods is an [optional] boolean
- *    flag {modify}. When true the BitBoard calling the method will be modified
- *    as opposed to leaving the calling BitBoard unchanged and returning a new BitBoard.
- *    If a BitBoard is an argument to a method it is ALWAYS left unchanged.
- */
+*    the last parameter to all binary operator methods is an [optional] boolean
+*    flag {modify}. When true the BitBoard calling the method will be modified
+*    as opposed to leaving the calling BitBoard unchanged and returning a new BitBoard.
+*    If a BitBoard is an argument to a method it is ALWAYS left unchanged.
+*/
 class BitBoard {
 
   public board: Array<number>;
@@ -57,7 +57,7 @@ class BitBoard {
    * @method
    * @returns {string}
    */
-  boardToString(): string {
+  toString(): string {
     let str = '';
 
     for (let i = 0; i < this.board.length; i++) {
@@ -170,6 +170,8 @@ class BitBoard {
           newBoard.board[0] = (newBoard.board[0] | num) >>> 0;
         } else if (shiftAmount === 0) {
           newBoard.board[1] = (newBoard.board[1] | startDigitMask) >>> 0;
+        } else if (shiftAmount > 32 && shiftAmount < 64) {
+          newBoard.board[0] = (newBoard.board[0] | startDigitMask) >>> 0;
         } else {
           newBoard.board[1] = (newBoard.board[1] | startDigitMask) >>> 0;
           newBoard.board[0] = (newBoard.board[0] | numCarryDigits) >>> 0;
@@ -203,6 +205,8 @@ class BitBoard {
           newBoard.board[0] = (newBoard.board[0] ^ num) >>> 0;
         } else if (shiftAmount === 0) {
           newBoard.board[1] = (newBoard.board[1] ^ startDigitMask) >>> 0;
+        } else if (shiftAmount > 32) {
+          newBoard.board[0] = (newBoard.board[0] ^ startDigitMask) >>> 0;
         } else {
           newBoard.board[1] = (newBoard.board[1] ^ startDigitMask) >>> 0;
           newBoard.board[0] = (newBoard.board[0] ^ numCarryDigits) >>> 0;
@@ -237,7 +241,7 @@ class BitBoard {
    */
   shiftLeft(shiftAmount: number, modify: boolean = false): BitBoard {
     if (typeof shiftAmount === 'number') {
-      if (shiftAmount >= 0 && shiftAmount <= this.BITS_PER_BUCKET) {
+      if (shiftAmount >= 0) {
 
         let newBoard = modify ? this : this.copy();
         
@@ -247,6 +251,12 @@ class BitBoard {
         if (shiftAmount === this.BITS_PER_BUCKET) {
           newBoard.board[1] = 0;
           newBoard.board[0] = carryDigits;
+        } else if (shiftAmount > this.BITS_PER_BUCKET && shiftAmount < this.length) {
+          newBoard.board[0] = (newBoard.board[1] << (shiftAmount - this.BITS_PER_BUCKET)) >>> 0;
+          newBoard.board[1] = 0;
+        } else if (shiftAmount >= this.length) {
+          newBoard.board[0] = 0;
+          newBoard.board[1] = 0;
         } else {
           newBoard.board[1] = (newBoard.board[1] << shiftAmount) >>> 0;
           newBoard.board[0] = (((newBoard.board[0] << shiftAmount) >>> 0) | carryDigits) >>> 0;
@@ -254,7 +264,7 @@ class BitBoard {
 
         return newBoard;
       }
-      throw new RangeError('Invalid input. index n must satisfy 0 <= n <= 64');
+      throw new RangeError('Invalid input. index must be >= 0');
     }
     throw new TypeError('Invalid input. Must be "number"');
   }
@@ -267,7 +277,7 @@ class BitBoard {
    */
   shiftRight(shiftAmount: number, modify: boolean = false): BitBoard {
     if (typeof shiftAmount === 'number') {
-      if (shiftAmount >= 0 && shiftAmount <= this.BITS_PER_BUCKET) {
+      if (shiftAmount >= 0) {
         let newBoard = modify ? this : this.copy();
         
         const bitMask = ((Math.pow(2, shiftAmount) - 1) << (this.BITS_PER_BUCKET - shiftAmount)) >>> 0;
@@ -276,6 +286,12 @@ class BitBoard {
         if (shiftAmount === this.BITS_PER_BUCKET) {
           newBoard.board[0] = 0;
           newBoard.board[1] = carryDigits;
+        } else if (shiftAmount > this.BITS_PER_BUCKET && shiftAmount < this.length) {
+          newBoard.board[1] = (newBoard.board[0] >>> (shiftAmount - this.BITS_PER_BUCKET)) >>> 0;
+          newBoard.board[0] = 0;
+        } else if (shiftAmount >= this.length) {
+          newBoard.board[0] = 0;
+          newBoard.board[1] = 0;
         } else {
           newBoard.board[0] = (newBoard.board[0] >>> shiftAmount) >>> 0;
           newBoard.board[1] = ((newBoard.board[1] >>> shiftAmount) | carryDigits) >>> 0;
@@ -283,7 +299,7 @@ class BitBoard {
 
         return newBoard;
       }
-      throw new RangeError('Invalid input. index n must satisfy 0 <= n <= 64');
+      throw new RangeError('Invalid input. index must be >= 0');
     }
     throw new TypeError('Invalid input. Must be "number"');
   }

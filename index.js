@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 var BitBoard_1 = __importDefault(require("./src/BitBoard"));
 var ChessBitBoard_1 = __importDefault(require("./src/ChessBitBoard"));
 var ConnectFourBitBoard_1 = __importDefault(require("./src/ConnectFourBitBoard"));
+
 if (typeof exports !== 'undefined') {
   /*
    * Export BitBoard classes if using node or any other CommonJS compatible environment.
@@ -21,4 +22,5 @@ if (typeof exports !== 'undefined') {
     return { BitBoard: BitBoard_1.default, ChessBitBoard: ChessBitBoard_1.default, ConnectFourBitBoard: ConnectFourBitBoard_1.default };
   }));
 }
+
 //# sourceMappingURL=index.js.map
