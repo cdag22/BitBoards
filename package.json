@@ -1,9 +1,18 @@
 {
   "name": "bitboards",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "minimal bitboard classes for boardgames. Contains an all purpose class and two sub classes for Chess and Connect Four",
   "main": "index.js",
-  "keywords": ["bitboard", "bitboards", "board", "bit", "chess", "connectfour", "connect-four", "typescript"],
+  "keywords": [
+    "bitboard",
+    "bitboards",
+    "board",
+    "bit",
+    "chess",
+    "connectfour",
+    "connect-four",
+    "typescript"
+  ],
   "unpkg": "https://unpkg.com/bitboards@1.0.3/index.min.js",
   "scripts": {
     "test": "jest",
