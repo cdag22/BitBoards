@@ -1,6 +1,6 @@
 {
   "name": "bitboards",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "minimal bitboard classes for boardgames. Contains an all purpose class and two sub classes for Chess and Connect Four",
   "main": "index.js",
   "scripts": {
