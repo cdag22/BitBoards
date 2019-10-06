@@ -6,12 +6,14 @@
 
 ##### Has been extensively tested in node.js.
 
-## Installation
-
-To install the stable version:
+## Installation and Usage
 
 ```sh
 npm install --save bitboards
+```
+
+```html
+<script src="https://unpkg.com/bitboards@1.0.3/index.min.js"></script>
 ```
 
 ## Importing

@@ -3,9 +3,12 @@
   "version": "1.0.2",
   "description": "minimal bitboard classes for boardgames. Contains an all purpose class and two sub classes for Chess and Connect Four",
   "main": "index.js",
+  "keywords": ["bitboard", "bitboards", "board", "bit", "chess", "connectfour", "connect-four", "typescript"],
+  "unpkg": "https://unpkg.com/bitboards@1.0.3/index.min.js",
   "scripts": {
     "test": "jest",
-    "test:dev": "jest --watchAll"
+    "test:dev": "jest --watchAll",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
@@ -18,6 +21,8 @@
   },
   "homepage": "https://github.com/cdag22/BitBoards#readme",
   "devDependencies": {
-    "jest": "^24.9.0"
-  }
+    "jest": "^24.9.0",
+    "typescript": "^3.6.3"
+  },
+  "prepublish": "tsc"
 }
