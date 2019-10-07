@@ -18,20 +18,28 @@ class BitBoard {
   private readonly BITS_PER_BUCKET: number;
   private readonly MAX_BITS: number;
 
-  constructor(board?: Array<number>) {
+  constructor(board?: Array<number> | string) {
     this.MAX_BITS = 4294967296; // (2 ^ 32)
     this.BITS_PER_BUCKET = 32;
     this.length = 64;
     this.board;
 
     if (board) {
-      if (!Array.isArray(board) || board.some(x => typeof x !== 'number')) {
-        throw new TypeError('board must be an array');
-      } else if (board.length !== 2 || board.some(x => Math.floor(x) !== x || x < 0 || x >= this.MAX_BITS)) {
-          throw new RangeError('inputs to board array must be two integers x where  0 <= x < 2 ^ 32 (or 4294967296)');
+      if (typeof board === 'string') {
+        if (board.split('').some(n => ['0', '1'].indexOf(n) === -1) || board.length > this.length) {
+          throw new SyntaxError('Inputs to board as a string must be between 1 and 64 zeroes and ones.')
+        }
+        const left = board.length > 32 ? parseInt(board.slice(0, board.length - 32), 2) : 0;
+        const right = parseInt(board.slice(32), 2);
+        this.board = [left, right];
+
+      } else if (Array.isArray(board)) {
+        if (board.some(x => typeof x !== 'number') || board.length !== 2 || board.some(x => Math.floor(x) !== x || x < 0 || x >= this.MAX_BITS)) {
+          throw new RangeError('array inputs to board must be two integers x where  0 <= x < 2 ^ 32 (or 4294967296)');
         }
         this.board = board;
-    } else  {
+      }
+    } else {
       this.board = [0, 0];
     }
   }

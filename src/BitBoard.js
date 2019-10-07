@@ -29,13 +29,20 @@
             this.length = 64;
             this.board;
             if (board) {
-                if (!Array.isArray(board) || board.some(function (x) { return typeof x !== 'number'; })) {
-                    throw new TypeError('board must be an array');
+                if (typeof board === 'string') {
+                    if (board.split('').some(function (n) { return ['0', '1'].indexOf(n) === -1; }) || board.length > this.length) {
+                        throw new SyntaxError('Inputs to board as a string must be between 1 and 64 zeroes and ones.');
+                    }
+                    var left = board.length > 32 ? parseInt(board.slice(0, board.length - 32), 2) : 0;
+                    var right = parseInt(board.slice(32), 2);
+                    this.board = [left, right];
                 }
-                else if (board.length !== 2 || board.some(function (x) { return Math.floor(x) !== x || x < 0 || x >= _this.MAX_BITS; })) {
-                    throw new RangeError('inputs to board array must be two integers x where  0 <= x < 2 ^ 32 (or 4294967296)');
+                else if (Array.isArray(board)) {
+                    if (board.some(function (x) { return typeof x !== 'number'; }) || board.length !== 2 || board.some(function (x) { return Math.floor(x) !== x || x < 0 || x >= _this.MAX_BITS; })) {
+                        throw new RangeError('array inputs to board must be two integers x where  0 <= x < 2 ^ 32 (or 4294967296)');
+                    }
+                    this.board = board;
                 }
-                this.board = board;
             }
             else {
                 this.board = [0, 0];

@@ -5,13 +5,30 @@ describe('BitBoard', () => {
   describe('errors', () => {
 
     describe('constructor', () => {
-      it('throws a Type Error for parameters not equal to an array of numbers', () => {
-        expect(() => new BitBoard('a')).toThrow(TypeError);
-        expect(() => new BitBoard(['a'])).toThrow(TypeError);
-      })
 
-      it('throws Range Error for values less than zero xOr greater than 255', () => {
-        expect(() => new BitBoard([257, -1])).toThrow(RangeError);
+      describe('board type is array', () => {
+        it('throws a Type Error for parameters not equal to an array of numbers', () => {
+          expect(() => new BitBoard(['a'])).toThrow(Error);
+        })
+        
+        it('throws Range Error for values less than zero or greater than 2 ^ 32 - 1', () => {
+          expect(() => new BitBoard([0, -1])).toThrow(Error);
+          expect(() => new BitBoard([0, Math.pow(2, 32)])).toThrow(Error);
+        });
+      })
+      
+      describe('board type is string', () => {
+        it('throws Syntax Error for strings greater than 64 characters', () => {
+          expect(() => new BitBoard('0'.repeat(65))).toThrow(SyntaxError);
+        });
+        
+        it('throws Syntax Error for strings contain characters other than 1s or 0s', () => {
+          expect(() => new BitBoard('a')).toThrow(SyntaxError);
+        });
+
+        it('does not throw error for strings equal to 64 1s and 0s', () => {
+          expect(() => new BitBoard('0'.repeat(64))).not.toThrow(SyntaxError);
+        });
       });
     });
     

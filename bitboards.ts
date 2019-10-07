@@ -2,7 +2,9 @@
  * @author Cj D'Agostino
  * 
  * @class BitBoard
- * @param {board} Array<number> [optional]  --> Must be length = 2 where each number n must be: 0 <= n <= 2 ^ 32 - 1
+ * @param {board} Array<number> | string [optional]
+ *    --> Must be length = 2 where each number n must be: 0 <= n <= 2 ^ 32 - 1
+ *    --> Or a string of length 1 to 64 zeros and ones
  * @exports BitBoard
  * 
  * NOTE
@@ -18,20 +20,28 @@ class BitBoard {
   private readonly BITS_PER_BUCKET: number;
   private readonly MAX_BITS: number;
 
-  constructor(board?: Array<number>) {
+  constructor(board?: Array<number> | string) {
     this.MAX_BITS = 4294967296; // (2 ^ 32)
     this.BITS_PER_BUCKET = 32;
     this.length = 64;
     this.board;
 
     if (board) {
-      if (!Array.isArray(board) || board.some(x => typeof x !== 'number')) {
-        throw new TypeError('board must be an array');
-      } else if (board.length !== 2 || board.some(x => Math.floor(x) !== x || x < 0 || x >= this.MAX_BITS)) {
-          throw new RangeError('inputs to board array must be two integers x where  0 <= x < 2 ^ 32 (or 4294967296)');
+      if (typeof board === 'string') {
+        if (board.split('').some(n => n !== '0' && n !== '1') || board.length > this.length) {
+          throw new SyntaxError('Inputs to board as a string must be between 1 and 64 zeroes and ones')
+        }
+        const left = board.length > 32 ? parseInt(board.slice(0, board.length - 32), 2) : 0;
+        const right = board.length > 32 ? parseInt(board.slice(32), 2) : parseInt(board, 2);
+        this.board = [left, right];
+
+      } else if (Array.isArray(board)) {
+        if (board.some(x => typeof x !== 'number') || board.length !== 2 || board.some(x => Math.floor(x) !== x || x < 0 || x >= this.MAX_BITS)) {
+          throw new Error('array inputs to board must be two integers x where  0 <= x < 2 ^ 32 (or 4294967296)');
         }
         this.board = board;
-    } else  {
+      }
+    } else {
       this.board = [0, 0];
     }
   }
@@ -128,7 +138,7 @@ class BitBoard {
       }
       return newBoard;
     }
-    throw new TypeError('Invalid input. Must be of type "BitBoard" or "number"');
+    throw new TypeError('Invalid input. Must be of type BitBoard');
   }
 
   /**
@@ -146,7 +156,7 @@ class BitBoard {
       }
       return newBoard;
     }
-    throw new TypeError('Invalid input. Must be of type "BitBoard" or "number"');
+    throw new TypeError('Invalid input. Must be of type BitBoard');
   }
 
   /**
@@ -303,6 +313,20 @@ class BitBoard {
     }
     throw new TypeError('Invalid input. Must be "number"');
   }
+
+  filpVertical(modify: boolean = false) {
+    let newBoard: BitBoard = modify ? this : this.copy();
+    let maskA = new BitBoard([16711935, 16711935]);
+    // maskA --> "0000000011111111000000001111111100000000111111110000000011111111"
+    let maskB = new BitBoard([65535, 65535]);
+    // maskB --> "0000000000000000111111111111111100000000000000001111111111111111"
+
+    newBoard = newBoard.shiftRight(8).and(maskA).or(newBoard.and(maskA).shiftLeft(8));
+    newBoard = newBoard.shiftRight(16).and(maskB).or(newBoard.and(maskB).shiftLeft(16));
+    newBoard = newBoard.shiftRight(32).or(newBoard.shiftLeft(32));
+
+    return newBoard;
+  }
 }
 
 /**
@@ -368,7 +392,7 @@ interface BitBoardInputDictionary {
  */
 class ChessBitBoard extends BitBoard {
 
-  constructor(input: BitBoardInputDictionary) {
+  constructor(input) {
     if (input && input.boardType) {
       switch (input.boardType) {
         case 'piece':
@@ -404,7 +428,7 @@ class ChessBitBoard extends BitBoard {
     } else if (input && input.board) {
         super(input.board); // this.board = custom input
     } else {
-      super(); // this.board = [0, 0];
+      super(input); // this.board = [0, 0];
     }
   }
 }

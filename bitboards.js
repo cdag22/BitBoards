@@ -26,7 +26,9 @@ var __extends = (this && this.__extends) || (function () {
      * @author Cj D'Agostino
      *
      * @class BitBoard
-     * @param {board} Array<number> [optional]  --> Must be length = 2 where each number n must be: 0 <= n <= 2 ^ 32 - 1
+     * @param {board} Array<number> | string [optional]
+     *    --> Must be length = 2 where each number n must be: 0 <= n <= 2 ^ 32 - 1
+     *    --> Or a string of length 1 to 64 zeros and ones
      * @exports BitBoard
      *
      * NOTE
@@ -43,13 +45,20 @@ var __extends = (this && this.__extends) || (function () {
             this.length = 64;
             this.board;
             if (board) {
-                if (!Array.isArray(board) || board.some(function (x) { return typeof x !== 'number'; })) {
-                    throw new TypeError('board must be an array');
+                if (typeof board === 'string') {
+                    if (board.split('').some(function (n) { return n !== '0' && n !== '1'; }) || board.length > this.length) {
+                        throw new SyntaxError('Inputs to board as a string must be between 1 and 64 zeroes and ones');
+                    }
+                    var left = board.length > 32 ? parseInt(board.slice(0, board.length - 32), 2) : 0;
+                    var right = board.length > 32 ? parseInt(board.slice(32), 2) : parseInt(board, 2);
+                    this.board = [left, right];
                 }
-                else if (board.length !== 2 || board.some(function (x) { return Math.floor(x) !== x || x < 0 || x >= _this.MAX_BITS; })) {
-                    throw new RangeError('inputs to board array must be two integers x where  0 <= x < 2 ^ 32 (or 4294967296)');
+                else if (Array.isArray(board)) {
+                    if (board.some(function (x) { return typeof x !== 'number'; }) || board.length !== 2 || board.some(function (x) { return Math.floor(x) !== x || x < 0 || x >= _this.MAX_BITS; })) {
+                        throw new Error('array inputs to board must be two integers x where  0 <= x < 2 ^ 32 (or 4294967296)');
+                    }
+                    this.board = board;
                 }
-                this.board = board;
             }
             else {
                 this.board = [0, 0];
@@ -136,7 +145,7 @@ var __extends = (this && this.__extends) || (function () {
                 }
                 return newBoard;
             }
-            throw new TypeError('Invalid input. Must be of type "BitBoard" or "number"');
+            throw new TypeError('Invalid input. Must be of type BitBoard');
         };
         /**
          * @method
@@ -153,7 +162,7 @@ var __extends = (this && this.__extends) || (function () {
                 }
                 return newBoard;
             }
-            throw new TypeError('Invalid input. Must be of type "BitBoard" or "number"');
+            throw new TypeError('Invalid input. Must be of type BitBoard');
         };
         /**
          * @method
@@ -310,6 +319,18 @@ var __extends = (this && this.__extends) || (function () {
             }
             throw new TypeError('Invalid input. Must be "number"');
         };
+        BitBoard.prototype.filpVertical = function (modify) {
+            if (modify === void 0) { modify = false; }
+            var newBoard = modify ? this : this.copy();
+            var maskA = new BitBoard([16711935, 16711935]);
+            // maskA --> "0000000011111111000000001111111100000000111111110000000011111111"
+            var maskB = new BitBoard([65535, 65535]);
+            // maskB --> "0000000000000000111111111111111100000000000000001111111111111111"
+            newBoard = newBoard.shiftRight(8).and(maskA).or(newBoard.and(maskA).shiftLeft(8));
+            newBoard = newBoard.shiftRight(16).and(maskB).or(newBoard.and(maskB).shiftLeft(16));
+            newBoard = newBoard.shiftRight(32).or(newBoard.shiftLeft(32));
+            return newBoard;
+        };
         return BitBoard;
     }());
     exports.BitBoard = BitBoard;
@@ -408,7 +429,7 @@ var __extends = (this && this.__extends) || (function () {
                 _this = _super.call(this, input.board) || this; // this.board = custom input
             }
             else {
-                _this = _super.call(this) || this; // this.board = [0, 0];
+                _this = _super.call(this, input) || this; // this.board = [0, 0];
             }
             return _this;
         }
