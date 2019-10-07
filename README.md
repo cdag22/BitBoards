@@ -104,7 +104,7 @@ board.isEmpty() // --> false
 defaultBoard.isEmpty() // --> true
 ```
 
-#### board.and(bitBoard)
+#### board.and(bitBoard, [modify])
 
 ```JavaScript
 let boardA = new BitBoard();
@@ -126,7 +126,7 @@ let boardA = new BitBoard();
 let boardB = new BitBoard([Math.pow(2,32) - 1, Math.pow(2,32) - 1]);
 // --> "1111111111111111111111111111111111111111111111111111111111111111"
 
-boardA.or(boardB, [modify])
+boardA.or(boardB)
 // --> "1111111111111111111111111111111111111111111111111111111111111111"
 ```
 
