@@ -1,4 +1,4 @@
-import BitBoard = require("./BitBoard");
+import BitBoard from './BitBoard'
 
 interface BitBoardInputDictionary {
   boardType?: string,

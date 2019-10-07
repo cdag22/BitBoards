@@ -21,6 +21,7 @@ var __extends = (this && this.__extends) || (function () {
     }
 })(function (require, exports) {
     "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
     /**
      * @author Cj D'Agostino
      *
@@ -311,6 +312,7 @@ var __extends = (this && this.__extends) || (function () {
         };
         return BitBoard;
     }());
+    exports.BitBoard = BitBoard;
     /**
      * @function
      * @param {str} string
@@ -412,6 +414,7 @@ var __extends = (this && this.__extends) || (function () {
         }
         return ChessBitBoard;
     }(BitBoard));
+    exports.ChessBitBoard = ChessBitBoard;
     /**
      * @class ConnectFourBitBoard
      * @extends {BitBoard}
@@ -445,7 +448,6 @@ var __extends = (this && this.__extends) || (function () {
         };
         return ConnectFourBitBoard;
     }(BitBoard));
-    var Board = { BitBoard: BitBoard, ChessBitBoard: ChessBitBoard, ConnectFourBitBoard: ConnectFourBitBoard };
-    return Board;
+    exports.ConnectFourBitBoard = ConnectFourBitBoard;
 });
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=bitboards.js.map

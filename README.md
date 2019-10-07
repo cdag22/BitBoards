@@ -13,26 +13,38 @@ npm install --save bitboards
 ```
 
 ```html
-<script src="https://unpkg.com/bitboards@1.0.3/index.min.js"></script>
+<script src="https://unpkg.com/bitboards@1.0.4/bitboards.min.js"></script>
 ```
 
 ## Importing
 
-
+**node.js**
 ```JavaScript
-const bb = require('bitboards');
+// Node
+const { BitBoard, ChessBitBoard, ConnectFourBitBoard } = require('bitboards');
+const board = new BitBoard();
 ```
 
+**modules**
 ```JavaScript
-import bb from 'bitboards';
+import { BitBoard, ChessBitBoard, ConnectFourBitBoard } from 'bitboards';
+const board = new BitBoard();
 ```
 
+**unpkg**
+```JavaScript
+// index.html
+<script src="https://unpkg.com/bitboards@1.0.4/bitboards.min.js"></script>
+
+// file.js
+const board = new BitBoard();
+```
 ## BitBoard
 
 Takes in an array of two numbers n where 0 <= n <= 2 ^ 32 - 1.
 
 ```JavaScript
-let board = new bb.BitBoard([Math.pow(2,32) - 1, Math.pow(2, 32) - 1]);
+let board = new BitBoard([Math.pow(2,32) - 1, Math.pow(2, 32) - 1]);
 
 board.toString();
 // 64 '1's --> "1111111111111111111111111111111111111111111111111111111111111111"
@@ -42,11 +54,11 @@ board.toString();
 
 The last parameter to all binary operator methods is an [optional] boolean flag ```modify```. When true the BitBoard calling the method will be modified as opposed to leaving the calling BitBoard unchanged and returning a new BitBoard. If a BitBoard is an argument to a method it is ALWAYS left unchanged.
 
-#### Constructor bb.BitBoard( [optional array of two integers ])
+#### Constructor BitBoard( [optional array of two integers ])
 
 ```JavaScript
-let boardA = new bb.BitBoard();
-let boardB = new bb.BitBoard([Math.pow(2,32) - 1, Math.pow(2, 32) - 1]);
+let boardA = new BitBoard();
+let boardB = new BitBoard([Math.pow(2,32) - 1, Math.pow(2, 32) - 1]);
 
 boardA.length // 64
 boardB.length === boardA.length // --> true
@@ -57,7 +69,7 @@ boardB.board // --> [4294967295, 4294967295]
 #### board.toString()
 
 ```JavaScript
-let board = bb.BitBoard([Math.pow(2,32) - 1, 0]);
+let board = BitBoard([Math.pow(2,32) - 1, 0]);
 board.toString();
 // length 64 --> "1111111111111111111111111111111100000000000000000000000000000000"
 ```
@@ -65,7 +77,7 @@ board.toString();
 #### board.getIndex(n)
 
 ```JavaScript
-let board = bb.BitBoard([Math.pow(2,32) - 1, 0]);
+let board = BitBoard([Math.pow(2,32) - 1, 0]);
 
 board.getIndex(0) // --> 0
 board.getIndex(63) // --> 1
@@ -75,7 +87,7 @@ board.getIndex(64) // --> RangeError
 #### board.copy()
 
 ```JavaScript
-let board = bb.BitBoard([Math.pow(2,32) - 1, 0]);
+let board = BitBoard([Math.pow(2,32) - 1, 0]);
 let copyBoard = board.copy();
 
 board.board === copyBoard.board // --> false
@@ -84,9 +96,9 @@ board.board === copyBoard.board // --> false
 #### board.isEmpty()
 
 ```JavaScript
-let board = bb.BitBoard([Math.pow(2,32) - 1, 0]);
+let board = BitBoard([Math.pow(2,32) - 1, 0]);
 
-let defaultBoard = bb.BitBoard();
+let defaultBoard = BitBoard();
 
 board.isEmpty() // --> false
 defaultBoard.isEmpty() // --> true
@@ -95,10 +107,10 @@ defaultBoard.isEmpty() // --> true
 #### board.and(bitBoard)
 
 ```JavaScript
-let boardA = new bb.BitBoard();
+let boardA = new BitBoard();
 // --> "0000000000000000000000000000000000000000000000000000000000000000"
 
-let boardB = new bb.BitBoard([Math.pow(2,32) - 1, Math.pow(2,32) - 1]);
+let boardB = new BitBoard([Math.pow(2,32) - 1, Math.pow(2,32) - 1]);
 // --> "1111111111111111111111111111111111111111111111111111111111111111"
 
 boardA.and(boardB)
@@ -108,10 +120,10 @@ boardA.and(boardB)
 #### board.or(bitBoard, [modify])
 
 ```JavaScript
-let boardA = new bb.BitBoard();
+let boardA = new BitBoard();
 // --> "0000000000000000000000000000000000000000000000000000000000000000"
 
-let boardB = new bb.BitBoard([Math.pow(2,32) - 1, Math.pow(2,32) - 1]);
+let boardB = new BitBoard([Math.pow(2,32) - 1, Math.pow(2,32) - 1]);
 // --> "1111111111111111111111111111111111111111111111111111111111111111"
 
 boardA.or(boardB, [modify])
@@ -121,10 +133,10 @@ boardA.or(boardB, [modify])
 #### board.xOr(bitboard, [modify])
 
 ```JavaScript
-let boardA = new bb.BitBoard();
+let boardA = new BitBoard();
 // --> "0000000000000000000000000000000000000000000000000000000000000000"
 
-let boardB = new bb.BitBoard([Math.pow(2,32) - 1, Math.pow(2,32) - 1]);
+let boardB = new BitBoard([Math.pow(2,32) - 1, Math.pow(2,32) - 1]);
 // --> "1111111111111111111111111111111111111111111111111111111111111111"
 
 
@@ -135,7 +147,7 @@ boardA.xOr(boardB)
 #### board.orNumber(shiftAmount, num, [modify])
 
 ```JavaScript
-let board = new bb.BitBoard([Math.pow(2, 32) - 1, 0]);
+let board = new BitBoard([Math.pow(2, 32) - 1, 0]);
 // --> "1111111111111111111111111111111100000000000000000000000000000000"
 
 board.orNumber(5, 10);
@@ -145,7 +157,7 @@ board.orNumber(5, 10);
 #### board.xOrNumber(shiftAmount, num, [modify])
 
 ```JavaScript
-let board = new bb.BitBoard([Math.pow(2, 32) - 1, Math.pow(2,32) - 1]);
+let board = new BitBoard([Math.pow(2, 32) - 1, Math.pow(2,32) - 1]);
 // --> "1111111111111111111111111111111111111111111111111111111111111111"
 
 board.xOrNumber(2, 10);
@@ -155,7 +167,7 @@ board.xOrNumber(2, 10);
 #### board.not([modify])
 
 ```JavaScript
-let board = new bb.BitBoard([Math.pow(2, 32) - 1, Math.pow(2,32) - 1]);
+let board = new BitBoard([Math.pow(2, 32) - 1, Math.pow(2,32) - 1]);
 // --> "1111111111111111111111111111111111111111111111111111111111111111"
 
 board.not()
@@ -165,7 +177,7 @@ board.not()
 #### board.shiftLeft(shiftAmount, [modify])
 
 ```JavaScript
-let board = new bb.BitBoard([0, Math.pow(2, 32) - 1]);
+let board = new BitBoard([0, Math.pow(2, 32) - 1]);
 // --> "0000000000000000000000000000000011111111111111111111111111111111"
 
 board.shiftLeft(54)
@@ -175,7 +187,7 @@ board.shiftLeft(54)
 #### board.shiftRight(shiftAmount, [modify])
 
 ```JavaScript
-let board = new bb.BitBoard([Math.pow(2, 32) - 1, 0]);
+let board = new BitBoard([Math.pow(2, 32) - 1, 0]);
 // --> "1111111111111111111111111111111100000000000000000000000000000000"
 
 board.shiftRight(54);
@@ -185,9 +197,9 @@ board.shiftRight(54);
 ## ChessBitBoard
 
 ```JavaScript
-let whiteA1Orientation = new bb.ChessBitBoard({ boardType: "white", lsb: "a1" });
+let whiteA1Orientation = new ChessBitBoard({ boardType: "white", lsb: "a1" });
 
-let blackA8Orientation = new bb.ChessBitBoard({ boardType: "black" });
+let blackA8Orientation = new ChessBitBoard({ boardType: "black" });
 
 // --> whiteA1Orientation.board = [0, 65535] = blackA8Orientation
 
@@ -231,23 +243,27 @@ All default boards are based on the the starting positions for pieces according 
 
 BitBoard class with an ```isWin()``` **static** method.
 
+*Special thanks to **denkspuren** for [isWin logic and the following diagram](https://github.com/denkspuren/BitboardC4/blob/master/BitboardDesign.md).*
+
+**SHAPE OF CONNECT FOUR GAME**
+```
+  6 13 20 27 34 41 48   55 62     Additional row
++---------------------+ 
+| 5 12 19 26 33 40 47 | 54 61     top row
+| 4 11 18 25 32 39 46 | 53 60
+| 3 10 17 24 31 38 45 | 52 59
+| 2  9 16 23 30 37 44 | 51 58
+| 1  8 15 22 29 36 43 | 50 57
+| 0  7 14 21 28 35 42 | 49 56 63  bottom row
++---------------------+
+```
+
 #### isWin(connectFourBitBoard)
 
 ```JavaScript
-ConnectFourBitBoard.isWin = function (bitBoard) {
+const northWestToSouthEastWinBoard = new ConnectFourBitBoard([0, 2130440]);
+// --> "0000000000000000000000000000000000000000001000001000001000001000"
 
-        let directions = [1, 7, 6, 8];
-
-        for (let _i = 0, directions_1 = directions; _i < directions_1.length; _i++) {
-            let direction = directions_1[_i];
-            let firstShift = bitBoard.shiftRight(2 * direction);
-            let secondShift = bitBoard.shiftRight(3 * direction);
-
-            let result = bitBoard.and(bitBoard.shiftRight(direction)).and(firstShift).and(secondShift);
-
-            if (!result.isEmpty())
-                return true;
-        }
-        return false;
-    };
+ConnectFourBitBoard.isWin(northWestToSouthEastWinBoard);
+// --> true
 ```

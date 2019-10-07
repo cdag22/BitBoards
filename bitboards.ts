@@ -443,6 +443,4 @@ class ConnectFourBitBoard extends BitBoard {
   }
 }
 
-const Board = { BitBoard, ChessBitBoard, ConnectFourBitBoard }
-
-export = Board;
+export { BitBoard, ChessBitBoard, ConnectFourBitBoard };

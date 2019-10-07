@@ -1,4 +1,4 @@
-const BitBoard = require('../BitBoard.js');
+const { BitBoard } = require('../../bitboards.js');
 
 describe('BitBoard', () => {
 

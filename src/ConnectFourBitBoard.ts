@@ -1,4 +1,4 @@
-import BitBoard = require("./BitBoard");
+import BitBoard from './BitBoard'
 
 /**
  * @author Cj D'Agostino
