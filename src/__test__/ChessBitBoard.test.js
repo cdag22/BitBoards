@@ -75,11 +75,11 @@ describe('ChessBitBoard', () => {
     });
 
     it('boardType empty && board with negative number to throw error', () => {
-      expect(() => new ChessBitBoard({ board: [-1, 0] })).toThrow(RangeError);
+      expect(() => new ChessBitBoard({ board: [-1, 0] })).toThrow(Error);
     });
 
     it('boardType empty && board with too large a number to throw error', () => {
-      expect(() => new ChessBitBoard({ board: [2**33, 0] })).toThrow(RangeError);
+      expect(() => new ChessBitBoard({ board: [2**33, 0] })).toThrow(Error);
     });
 
     it('boardType empty && valid board', () => {
