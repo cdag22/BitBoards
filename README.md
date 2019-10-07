@@ -96,9 +96,8 @@ board.board === copyBoard.board // --> false
 #### board.isEmpty()
 
 ```JavaScript
-let board = BitBoard([Math.pow(2,32) - 1, 0]);
-
-let defaultBoard = BitBoard();
+let board = new BitBoard([Math.pow(2,32) - 1, 0]);
+let defaultBoard = new BitBoard();
 
 board.isEmpty() // --> false
 defaultBoard.isEmpty() // --> true
