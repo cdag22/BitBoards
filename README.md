@@ -13,7 +13,7 @@ npm install --save bitboards
 ```
 
 ```html
-<script src="https://unpkg.com/bitboards@1.0.5/bitboards.min.js"></script>
+<script src="https://unpkg.com/bitboards@1.0.6/bitboards.min.js"></script>
 ```
 
 ## Importing
@@ -34,21 +34,12 @@ const board = new BitBoard();
 **unpkg**
 ```JavaScript
 // index.html
-<script src="https://unpkg.com/bitboards@1.0.5/bitboards.min.js"></script>
+<script src="https://unpkg.com/bitboards@1.0.6/bitboards.min.js"></script>
 
 // file.js
 const board = new BitBoard();
 ```
 ## BitBoard
-
-Takes in an array of two numbers n where 0 <= n <= 2 ^ 32 - 1.
-
-```JavaScript
-let board = new BitBoard([Math.pow(2,32) - 1, Math.pow(2, 32) - 1]);
-
-board.toString();
-// 64 '1's --> "1111111111111111111111111111111111111111111111111111111111111111"
-```
 
 #### NOTE
 
@@ -56,14 +47,32 @@ The last parameter to all binary operator methods is an [optional] boolean flag 
 
 #### Constructor BitBoard( [optional array of two integers ])
 
+- Takes in an array of two numbers n where 0 <= n <= 2 ^ 32 - 1.
+- Or a binary string of up to 64 zeros and ones
+
+*Array<number> Input*
+
 ```JavaScript
 let boardA = new BitBoard();
 let boardB = new BitBoard([Math.pow(2,32) - 1, Math.pow(2, 32) - 1]);
 
-boardA.length // 64
-boardB.length === boardA.length // --> true
+// boardA.board --> [0, 0]
+// boardB.board --> [4294967295, 4294967295]
 
-boardB.board // --> [4294967295, 4294967295]
+boardA.length // --> 64
+boardB.length === boardA.length // --> true
+```
+
+*String Input*
+
+```JavaScript
+let boardA = new BitBoard('11111111');
+let boardB = new BitBoard('1111111111111111111111111111111100000000000000000000000000000000');
+
+// boardA.board --> [0, 65535];
+// boardB.board --> [4294967295, 0]
+
+let boardC = new BitBoard('1010101a') // --> Error
 ```
 
 #### board.toString()
