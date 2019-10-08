@@ -314,18 +314,70 @@ class BitBoard {
     throw new TypeError('Invalid input. Must be "number"');
   }
 
-  filpVertical(modify: boolean = false) {
+  /**
+   * @param {modify} : boolean [optional] = false 
+   * @return {BitBoard} : flipped vertically
+   */
+  flipVertical(modify: boolean = false) {
     let newBoard: BitBoard = modify ? this : this.copy();
-    let maskA = new BitBoard([16711935, 16711935]);
-    // maskA --> "0000000011111111000000001111111100000000111111110000000011111111"
-    let maskB = new BitBoard([65535, 65535]);
-    // maskB --> "0000000000000000111111111111111100000000000000001111111111111111"
+    let mask1: BitBoard = new BitBoard([16711935, 16711935]);
+    // mask1 --> "0000000011111111000000001111111100000000111111110000000011111111"
+    let mask2: BitBoard = new BitBoard([65535, 65535]);
+    // mask2 --> "0000000000000000111111111111111100000000000000001111111111111111"
 
-    newBoard = newBoard.shiftRight(8).and(maskA).or(newBoard.and(maskA).shiftLeft(8));
-    newBoard = newBoard.shiftRight(16).and(maskB).or(newBoard.and(maskB).shiftLeft(16));
+    newBoard = newBoard.shiftRight(8).and(mask1).or(newBoard.and(mask1).shiftLeft(8));
+    newBoard = newBoard.shiftRight(16).and(mask2).or(newBoard.and(mask2).shiftLeft(16));
     newBoard = newBoard.shiftRight(32).or(newBoard.shiftLeft(32));
 
     return newBoard;
+  }
+
+  /**
+   * @param {modify} : boolean [optional] = false
+   * @return {BitBoard} : flipped along the diagonal from a8 to h1; i.e. top left to bottom right from white's orientation
+   */
+  flipDiagonalA8H1(modify: boolean = false) {
+    let newBoard: BitBoard = modify ? this : this.copy();
+    let mask1: BitBoard = new BitBoard([2852170240, 2852170240]);
+    // mask1 --> "1010101000000000101010100000000010101010000000001010101000000000"
+    let mask2: BitBoard = new BitBoard([3435921408, 3435921408]);
+    // mask2 --> "1100110011001100000000000000000011001100110011000000000000000000"
+    let mask4: BitBoard = new BitBoard([4042322160, 252645135]);
+    // mask4 --> "1111000011110000111100001111000000001111000011110000111100001111"
+    
+    let temp: BitBoard = newBoard.xOr(newBoard.shiftLeft(36));
+    newBoard.xOr(mask4.and(temp.xOr(newBoard.shiftRight(36))), true)
+    temp = mask2.and(newBoard.xOr(newBoard.shiftLeft(18)));
+    newBoard.xOr(temp.xOr(temp.shiftRight(18)), true);
+    temp = mask1.and(newBoard.xOr(newBoard.shiftLeft(9)));
+
+    return newBoard.xOr(temp.xOr(temp.shiftRight(9)), true)
+  }
+
+  rotate180Degrees(modify: boolean = false) {
+    let newBoard = modify ? this : this.copy();
+
+    let maskh1: BitBoard = new BitBoard([1431655765, 1431655765]);
+    let maskh2: BitBoard = new BitBoard([858993459, 858993459]);
+    let maskh4: BitBoard = new BitBoard([252645135, 252645135]);
+    // maskh4 --> "0000111100001111000011110000111100001111000011110000111100001111"
+    let maskv1: BitBoard = new BitBoard([16711935, 16711935]);
+    let maskv2: BitBoard = new BitBoard([65535, 65535]);
+
+    newBoard = newBoard.shiftRight(1).and(maskh1).or(newBoard.and(maskh1).shiftLeft(1));
+    newBoard = newBoard.shiftRight(2).and(maskh2).or(newBoard.and(maskh2).shiftLeft(2));
+    newBoard = newBoard.shiftRight(4).and(maskh4).or(newBoard.and(maskh4).shiftLeft(4));
+    newBoard = newBoard.shiftRight(8).and(maskv1).or(newBoard.and(maskv1).shiftLeft(8));
+    newBoard = newBoard.shiftRight(16).and(maskv2).or(newBoard.and(maskv2).shiftLeft(16));
+    newBoard = newBoard.shiftRight(32).or(newBoard.shiftLeft(32));
+
+    return newBoard;
+  }
+
+  rotate90DegreesClockwise(modify: boolean = false) {
+    let newBoard = modify ? this : this.copy();
+
+    return newBoard.flipDiagonalA8H1().flipVertical();
   }
 }
 

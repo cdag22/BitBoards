@@ -322,14 +322,30 @@ var __extends = (this && this.__extends) || (function () {
         BitBoard.prototype.filpVertical = function (modify) {
             if (modify === void 0) { modify = false; }
             var newBoard = modify ? this : this.copy();
-            var maskA = new BitBoard([16711935, 16711935]);
-            // maskA --> "0000000011111111000000001111111100000000111111110000000011111111"
-            var maskB = new BitBoard([65535, 65535]);
-            // maskB --> "0000000000000000111111111111111100000000000000001111111111111111"
-            newBoard = newBoard.shiftRight(8).and(maskA).or(newBoard.and(maskA).shiftLeft(8));
-            newBoard = newBoard.shiftRight(16).and(maskB).or(newBoard.and(maskB).shiftLeft(16));
+            var mask1 = new BitBoard([16711935, 16711935]);
+            // mask1 --> "0000000011111111000000001111111100000000111111110000000011111111"
+            var mask2 = new BitBoard([65535, 65535]);
+            // mask2 --> "0000000000000000111111111111111100000000000000001111111111111111"
+            newBoard = newBoard.shiftRight(8).and(mask1).or(newBoard.and(mask1).shiftLeft(8));
+            newBoard = newBoard.shiftRight(16).and(mask2).or(newBoard.and(mask2).shiftLeft(16));
             newBoard = newBoard.shiftRight(32).or(newBoard.shiftLeft(32));
             return newBoard;
+        };
+        BitBoard.prototype.flipDiagonalA8H1 = function (modify) {
+            if (modify === void 0) { modify = false; }
+            var newBoard = modify ? this : this.copy();
+            var mask1 = new BitBoard([2852170240, 2852170240]);
+            // mask1 --> "1010101000000000101010100000000010101010000000001010101000000000"
+            var mask2 = new BitBoard([3435921408, 3435921408]);
+            // mask2 --> "1100110011001100000000000000000011001100110011000000000000000000"
+            var mask4 = new BitBoard([4042322160, 252645135]);
+            // mask4 --> "0000111100001111000011110000111100001111000011110000111100001111"
+            var temp = newBoard.xOr(newBoard.shiftLeft(36));
+            newBoard.xOr(mask4.and(temp.xOr(newBoard.shiftRight(36))), true);
+            temp = mask2.and(newBoard.xOr(newBoard.shiftLeft(18)));
+            newBoard.xOr(temp.xOr(temp.shiftRight(18)), true);
+            temp = mask1.and(newBoard.xOr(newBoard.shiftLeft(9)));
+            return newBoard.xOr(temp.xOr(temp.shiftRight(9)), true);
         };
         return BitBoard;
     }());
