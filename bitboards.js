@@ -122,11 +122,11 @@ var __extends = (this && this.__extends) || (function () {
         BitBoard.prototype.and = function (bb, modify) {
             if (modify === void 0) { modify = false; }
             if (this.determineIfBitBoard(bb)) {
-                var newBoard = modify ? this : this.copy();
+                var targetBoard = modify ? this : this.copy();
                 for (var i = 0; i < this.board.length; i++) {
-                    newBoard.board[i] = (newBoard.board[i] & bb.board[i]) >>> 0;
+                    targetBoard.board[i] = (targetBoard.board[i] & bb.board[i]) >>> 0;
                 }
-                return newBoard;
+                return targetBoard;
             }
             throw new TypeError('Invalid input. Must be of type BitBoard');
         };
@@ -139,11 +139,11 @@ var __extends = (this && this.__extends) || (function () {
         BitBoard.prototype.or = function (bb, modify) {
             if (modify === void 0) { modify = false; }
             if (this.determineIfBitBoard(bb)) {
-                var newBoard = modify ? this : this.copy();
+                var targetBoard = modify ? this : this.copy();
                 for (var i = 0; i < this.board.length; i++) {
-                    newBoard.board[i] = (newBoard.board[i] | bb.board[i]) >>> 0;
+                    targetBoard.board[i] = (targetBoard.board[i] | bb.board[i]) >>> 0;
                 }
-                return newBoard;
+                return targetBoard;
             }
             throw new TypeError('Invalid input. Must be of type BitBoard');
         };
@@ -156,11 +156,11 @@ var __extends = (this && this.__extends) || (function () {
         BitBoard.prototype.xOr = function (bb, modify) {
             if (modify === void 0) { modify = false; }
             if (this.determineIfBitBoard(bb)) {
-                var newBoard = modify ? this : this.copy();
+                var targetBoard = modify ? this : this.copy();
                 for (var i = 0; i < this.board.length; i++) {
-                    newBoard.board[i] = (newBoard.board[i] ^ bb.board[i]) >>> 0;
+                    targetBoard.board[i] = (targetBoard.board[i] ^ bb.board[i]) >>> 0;
                 }
-                return newBoard;
+                return targetBoard;
             }
             throw new TypeError('Invalid input. Must be of type BitBoard');
         };
@@ -177,24 +177,24 @@ var __extends = (this && this.__extends) || (function () {
             if (modify === void 0) { modify = false; }
             if (typeof shiftAmount === 'number' && typeof num === 'number') {
                 if (shiftAmount >= 0 && shiftAmount < this.length && num >= 0 && num < this.MAX_BITS) {
-                    var newBoard = modify ? this : this.copy();
-                    var startDigits = (((num << shiftAmount) >>> 0) & (Math.pow(2, 32) - 1)) >>> 0;
-                    var startDigitMask = (startDigits & (Math.pow(2, 32) - 1)) >>> 0;
-                    var numCarryDigits = (num >>> (32 - shiftAmount)) >>> 0;
-                    if (shiftAmount === 32) {
-                        newBoard.board[0] = (newBoard.board[0] | num) >>> 0;
+                    var targetBoard = modify ? this : this.copy();
+                    var startDigits = (((num << shiftAmount) >>> 0) & (Math.pow(2, this.BITS_PER_BUCKET) - 1)) >>> 0;
+                    var startDigitMask = (startDigits & (Math.pow(2, this.BITS_PER_BUCKET) - 1)) >>> 0;
+                    var numCarryDigits = (num >>> (this.BITS_PER_BUCKET - shiftAmount)) >>> 0;
+                    if (shiftAmount === this.BITS_PER_BUCKET) {
+                        targetBoard.board[0] = (targetBoard.board[0] | num) >>> 0;
                     }
                     else if (shiftAmount === 0) {
-                        newBoard.board[1] = (newBoard.board[1] | startDigitMask) >>> 0;
+                        targetBoard.board[1] = (targetBoard.board[1] | startDigitMask) >>> 0;
                     }
-                    else if (shiftAmount > 32 && shiftAmount < 64) {
-                        newBoard.board[0] = (newBoard.board[0] | startDigitMask) >>> 0;
+                    else if (shiftAmount > this.BITS_PER_BUCKET) {
+                        targetBoard.board[0] = (targetBoard.board[0] | startDigitMask) >>> 0;
                     }
                     else {
-                        newBoard.board[1] = (newBoard.board[1] | startDigitMask) >>> 0;
-                        newBoard.board[0] = (newBoard.board[0] | numCarryDigits) >>> 0;
+                        targetBoard.board[1] = (targetBoard.board[1] | startDigitMask) >>> 0;
+                        targetBoard.board[0] = (targetBoard.board[0] | numCarryDigits) >>> 0;
                     }
-                    return newBoard;
+                    return targetBoard;
                 }
                 throw new RangeError('0 <= shiftAmount < 64 && 0 <= num <= 2 ^ 32 - 1');
             }
@@ -213,24 +213,24 @@ var __extends = (this && this.__extends) || (function () {
             if (modify === void 0) { modify = false; }
             if (typeof shiftAmount === 'number' && typeof num === 'number') {
                 if (shiftAmount >= 0 && shiftAmount < this.length && num >= 0 && num < this.MAX_BITS) {
-                    var newBoard = modify ? this : this.copy();
-                    var startDigits = (((num << shiftAmount) >>> 0) & (Math.pow(2, 32) - 1)) >>> 0;
-                    var startDigitMask = (startDigits & (Math.pow(2, 32) - 1)) >>> 0;
-                    var numCarryDigits = (num >>> (32 - shiftAmount)) >>> 0;
-                    if (shiftAmount === 32) {
-                        newBoard.board[0] = (newBoard.board[0] ^ num) >>> 0;
+                    var targetBoard = modify ? this : this.copy();
+                    var startDigits = (((num << shiftAmount) >>> 0) & (Math.pow(2, this.BITS_PER_BUCKET) - 1)) >>> 0;
+                    var startDigitMask = (startDigits & (Math.pow(2, this.BITS_PER_BUCKET) - 1)) >>> 0;
+                    var numCarryDigits = (num >>> (this.BITS_PER_BUCKET - shiftAmount)) >>> 0;
+                    if (shiftAmount === this.BITS_PER_BUCKET) {
+                        targetBoard.board[0] = (targetBoard.board[0] ^ num) >>> 0;
                     }
                     else if (shiftAmount === 0) {
-                        newBoard.board[1] = (newBoard.board[1] ^ startDigitMask) >>> 0;
+                        targetBoard.board[1] = (targetBoard.board[1] ^ startDigitMask) >>> 0;
                     }
-                    else if (shiftAmount > 32) {
-                        newBoard.board[0] = (newBoard.board[0] ^ startDigitMask) >>> 0;
+                    else if (shiftAmount > this.BITS_PER_BUCKET) {
+                        targetBoard.board[0] = (targetBoard.board[0] ^ startDigitMask) >>> 0;
                     }
                     else {
-                        newBoard.board[1] = (newBoard.board[1] ^ startDigitMask) >>> 0;
-                        newBoard.board[0] = (newBoard.board[0] ^ numCarryDigits) >>> 0;
+                        targetBoard.board[1] = (targetBoard.board[1] ^ startDigitMask) >>> 0;
+                        targetBoard.board[0] = (targetBoard.board[0] ^ numCarryDigits) >>> 0;
                     }
-                    return newBoard;
+                    return targetBoard;
                 }
                 throw new RangeError('0 <= shiftAmount < 64 && 0 <= num <= 2 ^ 32 - 1');
             }
@@ -243,11 +243,11 @@ var __extends = (this && this.__extends) || (function () {
          */
         BitBoard.prototype.not = function (modify) {
             if (modify === void 0) { modify = false; }
-            var newBoard = modify ? this : this.copy();
-            for (var i = 0; i < newBoard.board.length; i++) {
-                newBoard.board[i] = (~newBoard.board[i]) >>> 0;
+            var targetBoard = modify ? this : this.copy();
+            for (var i = 0; i < targetBoard.board.length; i++) {
+                targetBoard.board[i] = (~targetBoard.board[i]) >>> 0;
             }
-            return newBoard;
+            return targetBoard;
         };
         /**
          * @method
@@ -259,26 +259,26 @@ var __extends = (this && this.__extends) || (function () {
             if (modify === void 0) { modify = false; }
             if (typeof shiftAmount === 'number') {
                 if (shiftAmount >= 0) {
-                    var newBoard = modify ? this : this.copy();
+                    var targetBoard = modify ? this : this.copy();
                     var bitMask = ((Math.pow(2, shiftAmount) - 1) << (this.BITS_PER_BUCKET - shiftAmount)) >>> 0;
-                    var carryDigits = ((newBoard.board[1] & bitMask) >>> 0) >>> (this.BITS_PER_BUCKET - shiftAmount);
+                    var carryDigits = ((targetBoard.board[1] & bitMask) >>> 0) >>> (this.BITS_PER_BUCKET - shiftAmount);
                     if (shiftAmount === this.BITS_PER_BUCKET) {
-                        newBoard.board[1] = 0;
-                        newBoard.board[0] = carryDigits;
+                        targetBoard.board[1] = 0;
+                        targetBoard.board[0] = carryDigits;
                     }
                     else if (shiftAmount > this.BITS_PER_BUCKET && shiftAmount < this.length) {
-                        newBoard.board[0] = (newBoard.board[1] << (shiftAmount - this.BITS_PER_BUCKET)) >>> 0;
-                        newBoard.board[1] = 0;
+                        targetBoard.board[0] = (targetBoard.board[1] << (shiftAmount - this.BITS_PER_BUCKET)) >>> 0;
+                        targetBoard.board[1] = 0;
                     }
                     else if (shiftAmount >= this.length) {
-                        newBoard.board[0] = 0;
-                        newBoard.board[1] = 0;
+                        targetBoard.board[0] = 0;
+                        targetBoard.board[1] = 0;
                     }
                     else {
-                        newBoard.board[1] = (newBoard.board[1] << shiftAmount) >>> 0;
-                        newBoard.board[0] = (((newBoard.board[0] << shiftAmount) >>> 0) | carryDigits) >>> 0;
+                        targetBoard.board[1] = (targetBoard.board[1] << shiftAmount) >>> 0;
+                        targetBoard.board[0] = (((targetBoard.board[0] << shiftAmount) >>> 0) | carryDigits) >>> 0;
                     }
-                    return newBoard;
+                    return targetBoard;
                 }
                 throw new RangeError('Invalid input. index must be >= 0');
             }
@@ -294,58 +294,100 @@ var __extends = (this && this.__extends) || (function () {
             if (modify === void 0) { modify = false; }
             if (typeof shiftAmount === 'number') {
                 if (shiftAmount >= 0) {
-                    var newBoard = modify ? this : this.copy();
+                    var targetBoard = modify ? this : this.copy();
                     var bitMask = ((Math.pow(2, shiftAmount) - 1) << (this.BITS_PER_BUCKET - shiftAmount)) >>> 0;
-                    var carryDigits = ((newBoard.board[0] << (this.BITS_PER_BUCKET - shiftAmount) >>> 0) & bitMask) >>> 0;
+                    var carryDigits = ((targetBoard.board[0] << (this.BITS_PER_BUCKET - shiftAmount) >>> 0) & bitMask) >>> 0;
                     if (shiftAmount === this.BITS_PER_BUCKET) {
-                        newBoard.board[0] = 0;
-                        newBoard.board[1] = carryDigits;
+                        targetBoard.board[0] = 0;
+                        targetBoard.board[1] = carryDigits;
                     }
                     else if (shiftAmount > this.BITS_PER_BUCKET && shiftAmount < this.length) {
-                        newBoard.board[1] = (newBoard.board[0] >>> (shiftAmount - this.BITS_PER_BUCKET)) >>> 0;
-                        newBoard.board[0] = 0;
+                        targetBoard.board[1] = (targetBoard.board[0] >>> (shiftAmount - this.BITS_PER_BUCKET)) >>> 0;
+                        targetBoard.board[0] = 0;
                     }
                     else if (shiftAmount >= this.length) {
-                        newBoard.board[0] = 0;
-                        newBoard.board[1] = 0;
+                        targetBoard.board[0] = 0;
+                        targetBoard.board[1] = 0;
                     }
                     else {
-                        newBoard.board[0] = (newBoard.board[0] >>> shiftAmount) >>> 0;
-                        newBoard.board[1] = ((newBoard.board[1] >>> shiftAmount) | carryDigits) >>> 0;
+                        targetBoard.board[0] = (targetBoard.board[0] >>> shiftAmount) >>> 0;
+                        targetBoard.board[1] = ((targetBoard.board[1] >>> shiftAmount) | carryDigits) >>> 0;
                     }
-                    return newBoard;
+                    return targetBoard;
                 }
                 throw new RangeError('Invalid input. index must be >= 0');
             }
             throw new TypeError('Invalid input. Must be "number"');
         };
-        BitBoard.prototype.filpVertical = function (modify) {
+        /**
+         * @param {modify} : boolean [optional] = false
+         * @return {BitBoard} : flipped vertically
+         */
+        BitBoard.prototype.flipVertical = function (modify) {
             if (modify === void 0) { modify = false; }
-            var newBoard = modify ? this : this.copy();
+            var targetBoard = modify ? this : this.copy();
             var mask1 = new BitBoard([16711935, 16711935]);
             // mask1 --> "0000000011111111000000001111111100000000111111110000000011111111"
             var mask2 = new BitBoard([65535, 65535]);
             // mask2 --> "0000000000000000111111111111111100000000000000001111111111111111"
-            newBoard = newBoard.shiftRight(8).and(mask1).or(newBoard.and(mask1).shiftLeft(8));
-            newBoard = newBoard.shiftRight(16).and(mask2).or(newBoard.and(mask2).shiftLeft(16));
-            newBoard = newBoard.shiftRight(32).or(newBoard.shiftLeft(32));
-            return newBoard;
+            targetBoard = targetBoard.shiftRight(8).and(mask1).or(targetBoard.and(mask1).shiftLeft(8));
+            targetBoard = targetBoard.shiftRight(16).and(mask2).or(targetBoard.and(mask2).shiftLeft(16));
+            targetBoard = targetBoard.shiftRight(32).or(targetBoard.shiftLeft(32));
+            return targetBoard;
         };
-        BitBoard.prototype.flipDiagonalA8H1 = function (modify) {
+        /**
+         * @param {modify} : boolean [optional] = false
+         * @return {BitBoard} : flipped along the diagonal from a8 to h1; i.e. top left to bottom right from white's orientation
+         */
+        BitBoard.prototype.flipDiagonal = function (modify) {
             if (modify === void 0) { modify = false; }
-            var newBoard = modify ? this : this.copy();
+            var targetBoard = modify ? this : this.copy();
             var mask1 = new BitBoard([2852170240, 2852170240]);
             // mask1 --> "1010101000000000101010100000000010101010000000001010101000000000"
             var mask2 = new BitBoard([3435921408, 3435921408]);
             // mask2 --> "1100110011001100000000000000000011001100110011000000000000000000"
             var mask4 = new BitBoard([4042322160, 252645135]);
-            // mask4 --> "0000111100001111000011110000111100001111000011110000111100001111"
-            var temp = newBoard.xOr(newBoard.shiftLeft(36));
-            newBoard.xOr(mask4.and(temp.xOr(newBoard.shiftRight(36))), true);
-            temp = mask2.and(newBoard.xOr(newBoard.shiftLeft(18)));
-            newBoard.xOr(temp.xOr(temp.shiftRight(18)), true);
-            temp = mask1.and(newBoard.xOr(newBoard.shiftLeft(9)));
-            return newBoard.xOr(temp.xOr(temp.shiftRight(9)), true);
+            // mask4 --> "1111000011110000111100001111000000001111000011110000111100001111"
+            var temp = targetBoard.xOr(targetBoard.shiftLeft(36));
+            targetBoard.xOr(mask4.and(temp.xOr(targetBoard.shiftRight(36))), true);
+            temp = mask2.and(targetBoard.xOr(targetBoard.shiftLeft(18)));
+            targetBoard.xOr(temp.xOr(temp.shiftRight(18)), true);
+            temp = mask1.and(targetBoard.xOr(targetBoard.shiftLeft(9)));
+            return targetBoard.xOr(temp.xOr(temp.shiftRight(9)), true);
+        };
+        /**
+         * @param {modify} : boolean [optional] = false
+         * @return {BitBoard} : rotated 180 degrees
+         */
+        BitBoard.prototype.rotate180Degrees = function (modify) {
+            if (modify === void 0) { modify = false; }
+            var targetBoard = modify ? this : this.copy();
+            var maskh1 = new BitBoard([1431655765, 1431655765]);
+            // maskh1 --> "0101010101010101010101010101010101010101010101010101010101010101"
+            var maskh2 = new BitBoard([858993459, 858993459]);
+            // maskh2 --> "0011001100110011001100110011001100110011001100110011001100110011"
+            var maskh4 = new BitBoard([252645135, 252645135]);
+            // maskh4 --> "0000111100001111000011110000111100001111000011110000111100001111"
+            var maskv1 = new BitBoard([16711935, 16711935]);
+            // maskv1 --> "0000000011111111000000001111111100000000111111110000000011111111"
+            var maskv2 = new BitBoard([65535, 65535]);
+            // maskv2 --> "0000000000000000111111111111111100000000000000001111111111111111"
+            targetBoard = targetBoard.shiftRight(1).and(maskh1).or(targetBoard.and(maskh1).shiftLeft(1));
+            targetBoard = targetBoard.shiftRight(2).and(maskh2).or(targetBoard.and(maskh2).shiftLeft(2));
+            targetBoard = targetBoard.shiftRight(4).and(maskh4).or(targetBoard.and(maskh4).shiftLeft(4));
+            targetBoard = targetBoard.shiftRight(8).and(maskv1).or(targetBoard.and(maskv1).shiftLeft(8));
+            targetBoard = targetBoard.shiftRight(16).and(maskv2).or(targetBoard.and(maskv2).shiftLeft(16));
+            targetBoard = targetBoard.shiftRight(32).or(targetBoard.shiftLeft(32));
+            return targetBoard;
+        };
+        /**
+         * @param {modify} : boolean [option] = false
+         * @return {BitBoard} : rotated 90 degrees clockwise
+         */
+        BitBoard.prototype.rotate90DegreesClockwise = function (modify) {
+            if (modify === void 0) { modify = false; }
+            var targetBoard = modify ? this : this.copy();
+            return targetBoard.flipDiagonal().flipVertical();
         };
         return BitBoard;
     }());

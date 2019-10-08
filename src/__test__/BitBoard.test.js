@@ -156,7 +156,7 @@ describe('BitBoard', () => {
     });
   });
 
-  describe('operations between bit boards', () => {
+  describe('binary operations between bit boards', () => {
     let boardA;
     let boardB;
     let zeroBoard = '0'.repeat(64);
@@ -202,7 +202,7 @@ describe('BitBoard', () => {
     });
   });
 
-  describe('operations between a bit board and a number', () => {
+  describe('binary operations between a bit board and a number', () => {
     let boardA;
     let boardB;
     let zeroBoard = '0'.repeat(64);
@@ -290,5 +290,49 @@ describe('BitBoard', () => {
         expect(boardB.shiftRight(43).toString()).toEqual('0'.repeat(43) + '1'.repeat(21))
       });
     })
+  });
+
+  describe('rotations and reflections', () => {
+    let boardA;
+    let boardB;
+
+    beforeEach(() => {
+      boardA = new BitBoard([65535, 0]);
+      // boardA --> "0000000000000000111111111111111100000000000000000000000000000000"
+      boardB = new BitBoard([16711935,0]);
+      // boardB --> "0000000011111111000000001111111100000000000000000000000000000000"
+    });
+
+    it('flipVertical()', () => {
+      expect(boardA.flipVertical()).toEqual(new BitBoard([ 0, 4294901760 ]));
+      // --> "0000000000000000000000000000000011111111111111110000000000000000"
+
+      expect(boardB.flipVertical()).toEqual(new BitBoard([ 0, 4278255360 ]));
+      // --> "0000000000000000000000000000000011111111000000001111111100000000"
+    });
+    
+    it('flipDiagonal()', () => {
+      expect(boardA.flipDiagonal()).toEqual(new BitBoard([ 202116108, 202116108 ]));
+      // --> "0000110000001100000011000000110000001100000011000000110000001100"
+
+      expect(boardB.flipDiagonal()).toEqual(new BitBoard([ 168430090, 168430090 ]));
+      // --> "0000101000001010000010100000101000001010000010100000101000001010"
+    });
+    
+    it('rotate180Degrees()', () => {
+      expect(boardA.rotate180Degrees()).toEqual(new BitBoard([ 0, 4294901760 ]));
+      // --> "0000000000000000000000000000000011111111111111110000000000000000"
+
+      expect(boardB.rotate180Degrees()).toEqual(new BitBoard([ 0, 4278255360 ]));
+      // --> "0000000000000000000000000000000011111111000000001111111100000000"
+    });
+    
+    it('rotate90DegreesClockwise()', () => {
+      expect(boardA.rotate90DegreesClockwise()).toEqual(new BitBoard([ 202116108, 202116108 ]));
+      // --> "0000110000001100000011000000110000001100000011000000110000001100"
+
+      expect(boardB.rotate90DegreesClockwise()).toEqual(new BitBoard([ 168430090, 168430090 ]));
+      // --> "0000101000001010000010100000101000001010000010100000101000001010"
+    });
   });
 });

@@ -13,7 +13,7 @@ npm install --save bitboards
 ```
 
 ```html
-<script src="https://unpkg.com/bitboards@1.0.4/bitboards.min.js"></script>
+<script src="https://unpkg.com/bitboards@1.0.5/bitboards.min.js"></script>
 ```
 
 ## Importing
@@ -34,7 +34,7 @@ const board = new BitBoard();
 **unpkg**
 ```JavaScript
 // index.html
-<script src="https://unpkg.com/bitboards@1.0.4/bitboards.min.js"></script>
+<script src="https://unpkg.com/bitboards@1.0.5/bitboards.min.js"></script>
 
 // file.js
 const board = new BitBoard();
@@ -71,7 +71,8 @@ boardB.board // --> [4294967295, 4294967295]
 ```JavaScript
 let board = BitBoard([Math.pow(2,32) - 1, 0]);
 board.toString();
-// length 64 --> "1111111111111111111111111111111100000000000000000000000000000000"
+// length = 64
+// --> "1111111111111111111111111111111100000000000000000000000000000000"
 ```
 
 #### board.getIndex(n)
@@ -193,6 +194,45 @@ board.shiftRight(54);
 // --> "0000000000000000000000000000000000000000000000000000001111111111"
 ```
 
+#### board.flipVertical([modify])
+
+```JavaScript
+let board = new BitBoard([65535, 0]);
+// --> "0000000000000000111111111111111100000000000000000000000000000000"
+
+board.flipVertical()
+// --> "0000000000000000000000000000000011111111111111110000000000000000"
+```
+
+#### board.flipDiagonal([modify])
+
+```JavaScript
+let board = new BitBoard([65535, 0]);
+// --> "0000000000000000111111111111111100000000000000000000000000000000"
+
+board.flipDiagonal()
+// --> "0000110000001100000011000000110000001100000011000000110000001100"
+```
+
+#### board.rotate180Degrees([modify])
+
+```JavaScript
+let board = new BitBoard([65535, 0]);
+// --> "0000000000000000111111111111111100000000000000000000000000000000"
+
+board.rotate180Degrees()
+// --> "0000000000000000000000000000000011111111111111110000000000000000"
+```
+
+#### board.rotate90DegreesClockwise([modify])
+```JavaScript
+let board = new BitBoard([16711935,0]);
+// --> "0000000011111111000000001111111100000000000000000000000000000000"
+
+board.rotate90DegreesClockwise()
+// --> "0000101000001010000010100000101000001010000010100000101000001010"
+```
+
 ## ChessBitBoard
 
 ```JavaScript
@@ -262,6 +302,7 @@ BitBoard class with an ```isWin()``` **static** method.
 ```JavaScript
 const northWestToSouthEastWinBoard = new ConnectFourBitBoard([0, 2130440]);
 // --> "0000000000000000000000000000000000000000001000001000001000001000"
+// --> 1s at [3, 9, 15, 21]
 
 ConnectFourBitBoard.isWin(northWestToSouthEastWinBoard);
 // --> true
